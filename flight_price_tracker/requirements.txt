@@ -1,0 +1,5 @@
+requests
+python-dotenv
+tenacity
+rich
+typer

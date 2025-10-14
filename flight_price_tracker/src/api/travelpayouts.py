@@ -1,7 +1,7 @@
 import os, requests
-from dotenv import load_env
+from dotenv import load_dotenv
 
-load_env()
+load_dotenv()
 TOKEN = os.getenv("TRAVELPAYOUTS_TOKEN")
 BASE = "https://api.travelpayouts.com/aviasales/v3"
 
@@ -42,12 +42,16 @@ def prices_for_dates(origin: str, destination: str,
             "price": it.get("value"),
             "origin": it.get("origin"),
             "destination": it.get("destination"),
-            "depart_date": it.get("depart_date") or it.get("depart_at"),
-            "return_date": it.get("return_date") or it.get("return_from"),
+            "depart_date": it.get("depart_date") or it.get("departure_at"),
+            "return_date": it.get("return_date") or it.get("return_at"),
             "airline": it.get("airline"),
-            "changes": it.get("changes"),
+            "changes": it.get("number_of_changes"),
             "found_at": it.get("found_at"),
             "link": it.get("link"),
         })
     return results
+
+if __name__ == "__main__":
+    print("Token:", TOKEN)
+
     

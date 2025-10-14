@@ -51,6 +51,11 @@ def prices_for_dates(origin: str, destination: str,
         })
     return results
 
+r = requests.get(url, params=params, timeout=25)
+if r.status_code != 200:
+    print("DEBUG STATUS:", r.status_code)
+    print("DEBUG BODY:", r.text[:1000])
+
 if __name__ == "__main__":
     print("Token:", TOKEN)
 

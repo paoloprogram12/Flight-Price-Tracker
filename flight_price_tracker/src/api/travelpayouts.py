@@ -1,15 +1,16 @@
-import os, requests
-from dotenv import load_dotenv
+import os, requests # os reads environment variables like API token, requests makes HTTP requests to travelpayouts
+from dotenv import load_dotenv # reads .env file
 
 load_dotenv()
 TOKEN = os.getenv("TRAVELPAYOUTS_TOKEN")
-BASE = "https://api.travelpayouts.com/aviasales/v3"
+BASE = "https://api.travelpayouts.com/aviasales/v3" # base url for travelpayouts API
 
 class TPError(RuntimeError): ...
-def _check_token():
+def _check_token(): # checks if the token is valid, if not valid, returns an error
     if not TOKEN:
         raise TPError("TRAVELPAYOUTS_TOKEN is missing. Put it in your .env")
     
+    # defines the main function signature
 def prices_for_dates(origin: str, destination: str,
                      departure_at: str, return_at: str = None,
                      currency: str = "USD", limit: int = 30,
@@ -30,9 +31,9 @@ def prices_for_dates(origin: str, destination: str,
     Returns:
         List of flight deals with price, dates, airline, etc.
     """
-    _check_token()
-    url = f"{BASE}/prices_for_dates"
-    parameters = {
+    _check_token() # calls the token checker function
+    url = f"{BASE}/prices_for_dates" # build the full API url with the given parameters
+    parameters = { # parameters for the API
         "origin": origin,
         "destination": destination,
         "departure_at": departure_at,
@@ -50,6 +51,7 @@ def prices_for_dates(origin: str, destination: str,
     if return_at and not one_way:
         parameters["return_at"] = return_at
 
+    # makes the API request, adds parameters to the URL, and sets wait max to 25 sec before giving up
     r = requests.get(url, params=parameters, timeout=25)
 
     if r.status_code == 401:
@@ -58,12 +60,16 @@ def prices_for_dates(origin: str, destination: str,
     if r.status_code != 200:
         raise TPError(f"API Error ({r.status_code}): {r.text[:500]}")
 
+    # built in function that raises an error if status isn;t 2xx
     r.raise_for_status()
 
+    # parses the JSON response
     response_data = r.json()
+    # extracts the flight data
     data = response_data.get("data", [])
 
-    results = []
+    results = [] # stores cleaned-up flight data
+    # iterates throught each flight and appends each parameter
     for it in data:
         results.append({
             "price": it.get("price"),  # Field is "price" not "value"

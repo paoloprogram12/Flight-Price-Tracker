@@ -4,9 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flight Price Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>✈️ Flight Price Tracker</h1>
-    <p>I work hello</p>
+    <p>Find the cheapest flights for your trip</p>
+
+    <form action="/search" method="POST">
+        <div class="form-group">
+            <label for="origin">Origin Airport:</label>
+            <input type="text" id="origin" name="origin" placeholder="e.g., LAX" required>
+        </div>
+
+        <div class="form-group">
+            <label for="destination">Destination Airport:</label>
+            <input type="text" id="destination" name="destination" placeholder="e.g., TYO" required>
+        </div>
+
+        <div class="form-group">
+            <label for="days_ahead">Days Ahead:</label>
+            <input type="number" id="days_ahead" name="days_ahead" value="7" min="1" max="180">
+        </div>
+
+         <div class="form-group">
+      <label>Trip Type:</label>
+      <input type="radio" id="round_trip" name="trip_type" value="round-trip" checked>
+      <label for="round_trip">Round-Trip</label>
+
+      <input type="radio" id="one_way" name="trip_type" value="one-way">
+      <label for="one_way">One-Way</label>
+        </div>
+
+        <button type="submit">Search flights</button>
+    </form>
 </body>
 </html>

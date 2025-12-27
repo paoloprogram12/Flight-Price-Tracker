@@ -51,6 +51,10 @@ def prices_for_dates(origin: str, destination: str,
     if return_at and not one_way:
         parameters["return_at"] = return_at
 
+    # for TYO->LAX debug
+    print(f"DEBUG - API Request URL: {url}")
+    print(f"DEBUG - Parameters: {parameters}")
+
     # makes the API request, adds parameters to the URL, and sets wait max to 25 sec before giving up
     r = requests.get(url, params=parameters, timeout=25)
 

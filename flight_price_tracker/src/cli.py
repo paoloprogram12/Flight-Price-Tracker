@@ -3,9 +3,9 @@ from api.travelpayouts import prices_for_dates, TOKEN # imports api function and
 
 def main():
     # test cities
-    origin = "LAX" 
-    dest = "TYO"  # use TYO instead of NRT to test city code
-    days_ahead = 30 # used to search for flights 30 days from today
+    origin = input("Enter origin airport: LAX, TYO, JFK, LHR, AMS, DXB\n") 
+    dest = input("Enter destination: LAX, TYO, JFK, LHR, AMS, DXB\n")  # use TYO instead of NRT to test city code
+    days_ahead = 7 # used to search for flights 30 days from today # remember that the API only has pricing data for 3-6 months ahead
 
     # Use month format for more flexible results
     depart_month = (date.today() + timedelta(days=days_ahead)).strftime("%Y-%m") # adds 30 days from days today, format as month only
@@ -17,7 +17,10 @@ def main():
     # one_way = False (round-trip flights only)
     # currency = USD (searches for USD prices)
     deals = prices_for_dates(origin, dest, departure_at=depart_month, return_at=return_month, one_way=False, currency="USD")
+
+# test for TYO->LAX
     print(f"📦 Received {len(deals)} deals\n")
+    print(f"DEBUG - Raw response received: {deals}")  # Add this to see what came back
 
 # handles empty results (if there's no flights)
     if not deals:

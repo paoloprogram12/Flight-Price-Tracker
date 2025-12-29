@@ -22,8 +22,13 @@
         </div>
 
         <div class="form-group">
-            <label for="days_ahead">Days Ahead:</label>
-            <input type="number" id="days_ahead" name="days_ahead" value="7" min="1" max="180">
+            <label for="departure_date">Departure Date:</label>
+            <input type="date" id="departure_date" name="departure_date">
+        </div>
+
+        <div class="form-group" id="return_date_group">
+            <label for="return_date" id="">Return Date:</label>
+            <input type="date" name="return_date" id="return_date">
         </div>
 
          <div class="form-group">
@@ -35,7 +40,49 @@
       <label for="one_way">One-Way</label>
         </div>
 
+      <div class="form-group">
+        <label for="adults">Adults;</label>
+        <select id="adults" name="adults">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="children">Children (2-17):</label>
+        <select id="children" name="children">
+            <option value="0" selected>0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="infant">Infants (under 2):</label>
+        <select id="infant" name="infant">
+            <option value="0" selected>0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+      </div>
+
         <button type="submit">Search flights</button>
     </form>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </body>
 </html>

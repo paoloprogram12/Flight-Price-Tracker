@@ -40,7 +40,7 @@ def init_db():
                            destination VARCHAR(10) NOT NULL,
                            departure_date DATE NOT NULL,
                            return_date DATE,
-                           price_threshold DECIMAL(10.2) NOT NULL,
+                           price_threshold DECIMAL(10,2) NOT NULL,
                            trip_type VARCHAR(20) NOT NULL,
                            is_active BOOLEAN DEFAULT TRUE,
                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -55,7 +55,7 @@ def init_db():
     finally:
         connection.close()
 
-def create_alert(phone, origin, destination, departure_data, return_date, price_threshold, trip_type, email=None):
+def create_alert(phone, origin, destination, departure_date, return_date, price_threshold, trip_type, email=None):
     """
       Create a new price alert.
       
@@ -81,7 +81,7 @@ def create_alert(phone, origin, destination, departure_data, return_date, price_
                 price_threshold, trip_type, is_active)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(sql, (phone, email, origin, destination, departure_data, return_date,
+            cursor.execute(sql, (phone, email, origin, destination, departure_date, return_date,
                                 price_threshold, trip_type, True))
             connection.commit()
             return cursor.lastrowid
@@ -125,3 +125,49 @@ def update_last_checked(alert_id):
     finally:
         connection.close()
 
+def deactivate_alert(alert_id):
+      """Deactivate an alert (set is_active to False)."""
+      connection = get_connection()
+      try:
+          with connection.cursor() as cursor:
+              cursor.execute("""
+                  UPDATE price_alerts 
+                  SET is_active = FALSE 
+                  WHERE id = %s
+              """, (alert_id,))
+              connection.commit()
+      except pymysql.Error as e:
+          print(f"Error deactivating alert: {e}")
+          raise
+      finally:
+          connection.close()
+
+def get_alert_by_id(alert_id):
+      """Get a specific alert by ID."""
+      connection = get_connection()
+      try:
+          with connection.cursor() as cursor:
+              cursor.execute("""
+                  SELECT * FROM price_alerts 
+                  WHERE id = %s
+              """, (alert_id,))
+              return cursor.fetchone()
+      except pymysql.Error as e:
+          print(f"Error fetching alert: {e}")
+          raise
+      finally:
+          connection.close()
+
+# initialize db when module is imported
+if __name__ == "__main__":
+    init_db()
+    print("Database setup is completed.")
+
+
+# 1. get_connection() - Creates a connection to your MySQL database using credentials from .env
+#   2. init_db() - Creates the price_alerts table if it doesn't exist
+#   3. create_alert() - Saves a new price alert to the database
+#   4. get_active_alerts() - Retrieves all active alerts (for the background checker)
+#   5. update_last_checked() - Updates when an alert was last checked
+#   6. deactivate_alert() - Turns off an alert
+#   7. get_alert_by_id() - Gets a specific alert by ID

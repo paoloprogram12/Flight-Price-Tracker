@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from dotenv import load_env
+from dotenv import load_dotenv
 import sys
 import os
 
@@ -35,7 +35,7 @@ def create_alert_route():
         departure_date = request.form.get('departure_date')
         return_date = request.form.get('return_date')
         price_threshold = float(request.form.get('price_threshold'))
-        trip_type =- request.form.get('trip_type')
+        trip_type = request.form.get('trip_type')
 
         # if one-way, return date is none
         if trip_type == 'one-way':

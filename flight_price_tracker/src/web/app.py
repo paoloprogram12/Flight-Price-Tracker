@@ -1,15 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
+from dotenv import load_env
 import sys
 import os
 
+load_dotenv()
+
 # add parent directory to path to import from src.core
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))) # shows where to find db.py
 
 from src.core.db import create_alert, get_active_alerts
 
 # creates app
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here-change-this'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default-dev-key')
 
 # home page
 @app.route('/')

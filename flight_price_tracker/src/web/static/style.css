@@ -13,9 +13,6 @@ body {
     background-repeat: no-repeat;
     /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     padding: 20px;
 }
 
@@ -75,29 +72,45 @@ body {
     color: #3498db;
 }
 
-/* MAIN CONTAINER */
-body > * {
+/* PAGE CONTAINER */
+.page-container {
+    margin-top: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 40px;
+}
+
+/* HERO SECTION (Left Side) */
+.hero-section {
+    flex: 1;
+    padding-top: 60px;
+}
+
+.hero-section h1 {
+    color: white;
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.hero-section p {
+    color: white;
+    font-size: 1.3em;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
+}
+
+/* FORM CONTAINER (Right Side) */
+.form-container {
     background: rgba(255, 255, 255, 0.95);
     max-width: 500px;
     width: 100%;
     padding: 40px;
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-/* HEADINGS */
-h1 {
-    color: #1e3a5f;
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 2em;
-}
-
-body > p:first-of-type {
-    text-align: center;
-    color: #4a5f7f;
-    margin-bottom: 30px;
-    font-size: 1.1em;
 }
 
 /* FORM GROUPS */
@@ -174,32 +187,42 @@ button[type="submit"]:active {
     transform: translateY(0);
 }
 
-/* BOTTOM LINK */
-body > p:last-of-type {
+/* ALERT LINK */
+.alert-link {
     text-align: center;
     margin-top: 20px;
     color: #4a5f7f;
 }
 
-body > p:last-of-type a {
+.alert-link a {
     color: #2980b9;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
-body > p:last-of-type a:hover {
+.alert-link a:hover {
     color: #3498db;
     text-decoration: underline;
 }
 
-/* RESPONSIVE DESIGN (MOBILE DEVICES */
-@media (max-width: 600px) {
-    body > * {
-        padding: 25px;
+/* RESPONSIVE DESIGN (MOBILE DEVICES) */
+@media (max-width: 900px) {
+    .page-container {
+        flex-direction: column;
+        align-items: center;
     }
 
-    h1 {
-        font-size: 1.5em;
+    .hero-section {
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .hero-section h1 {
+        font-size: 2em;
+    }
+
+    .form-container {
+        padding: 25px;
     }
 }

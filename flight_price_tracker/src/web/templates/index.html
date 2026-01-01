@@ -16,83 +16,88 @@
             </div>
         </div>
     </nav>
-    <h1>✈️ Flight Price Tracker</h1>
-    <p>Find the cheapest flights for your trip</p>
-
-    <form action="/search" method="POST">
-        <div class="form-group">
-            <label for="origin">Origin Airport:</label>
-            <input type="text" id="origin" name="origin" placeholder="e.g., LAX" required>
+    <div class="page-container">
+        <div class="hero-section">
+            <h1>✈️ Flight Price Tracker</h1>
+            <p>Find the cheapest flights for your trip</p>
         </div>
 
-        <div class="form-group">
-            <label for="destination">Destination Airport:</label>
-            <input type="text" id="destination" name="destination" placeholder="e.g., TYO" required>
+        <div class="form-container">
+            <form action="/search" method="POST">
+                <div class="form-group">
+                    <label for="origin">Origin Airport:</label>
+                    <input type="text" id="origin" name="origin" placeholder="e.g., LAX" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="destination">Destination Airport:</label>
+                    <input type="text" id="destination" name="destination" placeholder="e.g., TYO" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="departure_date">Departure Date:</label>
+                    <input type="date" id="departure_date" name="departure_date">
+                </div>
+
+                <div class="form-group" id="return_date_group">
+                    <label for="return_date">Return Date:</label>
+                    <input type="date" name="return_date" id="return_date">
+                </div>
+
+                <div class="form-group">
+                    <label>Trip Type:</label>
+                    <input type="radio" id="round_trip" name="trip_type" value="round-trip" checked>
+                    <label for="round_trip">Round-Trip</label>
+
+                    <input type="radio" id="one_way" name="trip_type" value="one-way">
+                    <label for="one_way">One-Way</label>
+                </div>
+
+                <div class="form-group">
+                    <label for="adults">Adults:</label>
+                    <select id="adults" name="adults">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="children">Children (2-17):</label>
+                    <select id="children" name="children">
+                        <option value="0" selected>0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="infant">Infants (under 2):</label>
+                    <select id="infant" name="infant">
+                        <option value="0" selected>0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+
+                <button type="submit">Search flights</button>
+            </form>
+
+            <p class="alert-link">Want to get notified when prices drop? <a href="/alerts">Set up price alerts 🔔</a></p>
         </div>
-
-        <div class="form-group">
-            <label for="departure_date">Departure Date:</label>
-            <input type="date" id="departure_date" name="departure_date">
-        </div>
-
-        <div class="form-group" id="return_date_group">
-            <label for="return_date" id="">Return Date:</label>
-            <input type="date" name="return_date" id="return_date">
-        </div>
-
-         <div class="form-group">
-      <label>Trip Type:</label>
-      <input type="radio" id="round_trip" name="trip_type" value="round-trip" checked>
-      <label for="round_trip">Round-Trip</label>
-
-      <input type="radio" id="one_way" name="trip_type" value="one-way">
-      <label for="one_way">One-Way</label>
-        </div>
-
-      <div class="form-group">
-        <label for="adults">Adults:</label>
-        <select id="adults" name="adults">
-            <option value="1" selected>1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="children">Children (2-17):</label>
-        <select id="children" name="children">
-            <option value="0" selected>0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="infant">Infants (under 2):</label>
-        <select id="infant" name="infant">
-            <option value="0" selected>0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-        </select>
-      </div>
-
-        <button type="submit">Search flights</button>
-    </form>
-
-    <br>
-    <p>Want to get notified when prices drop? <a href="/alerts">Set up price alerts 🔔</a></p>
+    </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 

@@ -6,7 +6,12 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-image: url('airplane.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -14,19 +19,31 @@ body {
     padding: 20px;
 }
 
+/* Dark overlay for better readability */
+  body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 25, 47, 0.7);
+      z-index: -1;
+  }
+
 /* MAIN CONTAINER */
 body > * {
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
     max-width: 500px;
     width: 100%;
     padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 /* HEADINGS */
 h1 {
-    color: #667eea;
+    color: #1e3a5f;
     text-align: center;
     margin-bottom: 10px;
     font-size: 2em;
@@ -34,7 +51,7 @@ h1 {
 
 body > p:first-of-type {
     text-align: center;
-    color: #666;
+    color: #4a5f7f;
     margin-bottom: 30px;
     font-size: 1.1em;
 }
@@ -47,7 +64,7 @@ body > p:first-of-type {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #333;
+    color: #2c3e50;
     font-weight: 600;
 }
 
@@ -68,7 +85,7 @@ body > p:first-of-type {
 .form-group select:focus {
     outline: none;
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.2);
 }
 
 
@@ -93,7 +110,7 @@ body > p:first-of-type {
 button[type="submit"] {
     width: 100%;
     padding: 15px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
     color: white;
     border: none;
     border-radius: 8px;
@@ -106,7 +123,7 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 20px rgba(52, 152, 219, 0.5);
 }
 
 button[type="submit"]:active {
@@ -117,22 +134,22 @@ button[type="submit"]:active {
 body > p:last-of-type {
     text-align: center;
     margin-top: 20px;
-    color: #666;
+    color: #4a5f7f;
 }
 
 body > p:last-of-type a {
-    color: #667eea;
+    color: #2980b9;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
 body > p:last-of-type a:hover {
-    color: #764ba2;
+    color: #3498db;
     text-decoration: underline;
 }
 
-/* RESPONSIVE DESIGN */
+/* RESPONSIVE DESIGN (MOBILE DEVICES */
 @media (max-width: 600px) {
     body > * {
         padding: 25px;

@@ -19,6 +19,52 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default-dev-key')
 def home():
     return render_template('index.html')
 
+# handle flight search
+@app.route('/search', methods=['POST'])
+def search():
+    try:
+        # import API function
+        from src.api.travelpayouts import prices_for_dates
+
+        # get form data
+        origin = request.form.get('origin').upper()
+        destination = request.form.get('destination').upper()
+        departure_date = request.form.get('departure_date')
+        return_date = request.form.get('return_date')
+        trip_type = request.form.get('trip_type')
+        adults = int(request.form.get('adults', 1))
+        children = int(request.form.get('children', 0))
+        infant = int(request.form.get('infant', 0))
+
+        # determine if it's one way
+        one_way = (trip_type == 'one-way')
+
+        # calls the Travelpayouts API
+        flights = prices_for_dates(
+            origin=origin,
+            destination=destination,
+            departure_at=departure_date,
+            return_at=return_date if not one_way else None,
+            one_way=one_way,
+            limit=30
+        )
+
+        # calculate total passengers
+        total_passengers = adults + children + infant
+
+        # pass data to the template
+        return render_template('results.html',
+                               flights=flights,
+                               origin=origin,
+                               destination=destination,
+                               departure_date=departure_date,
+                               return_date=return_date,
+                               trip_type=trip_type,
+                               total_passengers=total_passengers)
+    except Exception as e:
+        flash(f'Error searching flights: {str(e)}', 'error')
+        return redirect(url_for('home'))
+
 # display alerts signup form
 @app.route('/alerts')
 def alerts():

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Results - Flight Price Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+          <div class="nav-container">
+              <div class="nav-brand">✈️ Flight Tracker</div>
+              <div class="nav-links">
+                  <a href="/">Home</a>
+                  <a href="/alerts">Alerts</a>
+              </div>
+          </div>
+      </nav>
+
+    <div class="results-container">
+        <div class="search-summary">
+            <h1>Flight Results</h1>
+            <p>{{ origin }} → {{ destination }}</p>
+            <p>{{ departure_date }}{% if return_date %} - {{ return_date }}{% endif %}</p>
+            <p>{{ total_passengers }} passenger(s)</p>
+        </div>
+
+        {% if flights %}
+            <div class="flights-list">
+                {% for flight in flights %}
+                <div class="flight-card">
+                    <div class="flight-header">
+                        <div class="airline">{{ flight.airline }}</div>
+                        <div class="price">${{ flight.price }}</div>
+                    </div>
+
+                    <div class="flight-details">
+                        <div class="route">
+                            <div class="departure">
+                                <strong>{{ flight.origin }}</strong>
+                                <p>{{ flight.depart_date }}</p>
+                            </div>
+                            <div class="arrow">→</div>
+                            <div class="arrival">
+                                <strong>{{ flight.destination }}</strong>
+                                <p>{{ flight.return_date if flight.return_date else 'One-way' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flight-info">
+                            {% if flight.transfers == 0 %}
+                                <span class="badge direct">Direct</span>
+                            {% else %}
+                                <span class="badge">{{ flight.transfers }} stop(s)</span>
+                            {% endif %}
+
+                            {% if flight.duration %}
+                                <span>Duration: {{ flight.duration }} min</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if flight.link %}
+                        <a href="{{ flight.link }}" target="_blank" class="book-button">Book Now</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <p>No flights found for this route and date.</p>
+                <a href="/" class="back-button">Search Again</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

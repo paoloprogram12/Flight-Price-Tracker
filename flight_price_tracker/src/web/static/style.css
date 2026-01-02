@@ -16,6 +16,7 @@ body {
     padding: 20px;
 }
 
+/* === HOME PAGE === */
 /* Dark overlay for better readability */
   body::before {
       content: '';
@@ -251,6 +252,205 @@ button[type="submit"]:active {
 .alert-link a:hover {
     color: #3498db;
     text-decoration: underline;
+}
+
+/* === RESULTS PAGE === */
+/* override body styles for results page */
+body:has(.results-container) {
+    background: linear-gradient(to right, #1e3a5f 0%, 1e3a5f 15%, white 15%, white 85%, #1e3a5f 85%, #1e3a5f 100%);
+    background-attachment: fixed;
+}
+
+.results-container {
+    max-width: 1200px;
+    margin: 100px auto 40px;
+    padding: 20px;
+    background: white;
+}
+
+/* Search Summary Section */
+.search-summary {
+    background: linear-gradient(135 deg, #2c3e50 0%, #3498db 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.search-summary h1 {
+    color: white;
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+.search-summary p {
+    color: white;
+    font-size: 1.1em;
+    margin: 8px 0;
+}
+
+/* Flights List */
+.flights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Flight Card */
+.flight-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flight-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Flight Header (Airline and Price) */
+.flight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.airline {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.price {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #3498db;
+}
+
+/* Flight Details */
+.flight-details {
+    margin-bottom: 20px;
+}
+
+.route {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.departure, .arrival {
+    flex: 1;
+}
+
+.departure {
+    text-align: left;
+}
+
+.arrival {
+    text-align: right;
+}
+
+.departure strong, .arrival strong {
+    font-size: 1.3em;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.departure p, .arrival p {
+    color: #666;
+    font-size: 0.95em;
+}
+
+.arrow {
+    font-size: 2em;
+    color: 3498db;
+    margin: 0 20px;
+}
+
+/* Flight Info (transfers, duration) */
+.flight-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.flight-info span {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 5px 12px;
+    background-color: #e0e0e0;
+    color: #666;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.badge.direct {
+    background-color: #27ae60;
+    color: white;
+}
+
+/* Book Now Button */
+.book-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #2c3e50, 0%, #3498db 100%);
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+/* No Results Section */
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.no-results p {
+    font-size: 1.3em;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.back-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
 }
 
 /* RESPONSIVE DESIGN (MOBILE DEVICES) */

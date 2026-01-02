@@ -116,6 +116,7 @@ body {
 /* FORM GROUPS */
 .form-group {
     margin-bottom: 20px;
+    position: relative;
 }
 
 .form-group label {
@@ -161,6 +162,38 @@ body {
     display: inline;
     font-weight: normal;
     margin-right: 10px;
+}
+
+/* AUTOCOMPLETE DROPDOWN */
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-top: none;
+    z-index: 99;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.9em;
+}
+
+.autocomplete-items div:hover {
+    background-color: #e9f5ff;
+}
+
+.autocomplete-active {
+    background-color: #3498db;
+    color: white;
 }
 
 /* SUBMIT BUTTON */

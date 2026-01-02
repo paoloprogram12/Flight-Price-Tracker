@@ -35,6 +35,7 @@ function setupAutocomplete(inputElement) {
         // create a div to hold the autocomplete suggestions
         const autocompleteList = document.createElement('div');
         autocompleteList.setAttribute('id', this.id + '-autocomplete-list');
+        autocompleteList.setAttribute('class', 'autocomplete-items');
         this.parentNode.appendChild(autocompleteList);
 
         // filter airports that match what user typed

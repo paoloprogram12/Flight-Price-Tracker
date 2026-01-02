@@ -43,13 +43,15 @@ function setupAutocomplete(inputElement) {
         const matches = airports.filter(airport => 
             airport.code.includes(inputValue) ||
             airport.city.toUpperCase().includes(inputValue) ||
-            airport.name.toUpperCase().includes(inputValue)
+            airport.name.toUpperCase().includes(inputValue) ||
+            airport.state.toUpperCase().includes(inputValue) ||
+            airport.country.toUpperCase().includes(inputValue)
         );
 
         // shows the first 5 matches
         matches.slice(0, 5).forEach(airport => {
             const item = document.createElement('div'); // creates div for each suggestion
-            item.innerHTML = `<strong>${airport.code}</strong> ~ ${airport.city} (${airport.name})`;
+            item.innerHTML = `<strong>${airport.code}</strong> - ${airport.city} (${airport.name})`;
             item.dataset.code = airport.code; // stores airport code in data attribute
 
             // when user clicks on a suggestion

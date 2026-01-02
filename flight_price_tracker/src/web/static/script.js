@@ -44,8 +44,8 @@ function setupAutocomplete(inputElement) {
             airport.code.includes(inputValue) ||
             airport.city.toUpperCase().includes(inputValue) ||
             airport.name.toUpperCase().includes(inputValue) ||
-            airport.state.toUpperCase().includes(inputValue) ||
-            airport.country.toUpperCase().includes(inputValue)
+            (airport.state && airport.state.toUpperCase().includes(inputValue)) ||
+            (airport.country && airport.country.toUpperCase().includes(inputValue))
         );
 
         // shows the first 5 matches

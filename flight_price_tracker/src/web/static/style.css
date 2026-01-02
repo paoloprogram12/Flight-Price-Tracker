@@ -266,6 +266,7 @@ body:has(.results-container) {
     margin: 80px auto 40px;
     padding: 20px;
     background: white;
+    border-radius: 4px;
 }
 
 /* Go Back Button (Top) */
@@ -459,8 +460,11 @@ body:has(.results-container) {
 .back-button {
     display: inline-block;
     padding: 12px 30px;
-    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-    color: white;
+    /* background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    color: white; */
+    color: #3498db;
+    border: 2px solid #3498db;
+    background: transparent;
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
@@ -469,6 +473,8 @@ body:has(.results-container) {
 
 .back-button:hover {
     transform: translateY(-2px);
+    background: #3498db;
+    color: white;
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
 }
 

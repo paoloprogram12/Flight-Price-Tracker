@@ -26,7 +26,26 @@
         </div>
 
         {% if flights %}
-            <a href="/" class="back-button-top">← Go Back</a>
+            <div class="results-search-bar">
+                <a href="/" class="back-button-top">← Go Back</a>
+
+                <form action="/search" method="POST" class="inline-search-form">
+                    <input type="text" name="origin" id="results-origin" placeholder="Origin" value="{{ origin }}" required>
+                    <input type="text" name="destination" id="results-destination" placeholder="Destination" value="{{ destination }}" required>
+                    {% if trip_type == 'round-trip' %}
+                        <input type="date" name="return_date" value="{{ return_date }}">
+                    {% endif % }
+
+                    <!-- Hidden filds to preserve other form data -->
+                    <input type="hidden" name="trip_type" value="{{ trip_type }}">
+                    <!-- might have to fix this line 42-44 -->
+                    <input type="hidden" name="adults" value="1">
+                    <input type="hidden" name="children" value="0">
+                    <input type="hidden" name="infant" value="0">
+
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
+            </div>
 
             <div class="flights-list">
                 {% for flight in flights %}

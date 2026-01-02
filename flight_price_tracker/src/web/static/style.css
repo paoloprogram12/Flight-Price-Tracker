@@ -263,9 +263,28 @@ body:has(.results-container) {
 
 .results-container {
     max-width: 1200px;
-    margin: 100px auto 40px;
+    margin: 80px auto 40px;
     padding: 20px;
     background: white;
+}
+
+/* Go Back Button (Top) */
+.back-button-top {
+    display: inline-block;
+    padding: 10px 20px;
+    background: transparent;
+    color: #3498db;
+    text-decoration: none;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.back-button-top:hover {
+    background: #3498db;
+    color: white;
 }
 
 /* Search Summary Section */

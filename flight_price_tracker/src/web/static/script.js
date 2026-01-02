@@ -73,7 +73,7 @@ function setupAutocomplete(inputElement) {
     inputElement.addEventListener('keydown', function(e) {
         let list = document.getElementById(this.id + '-autocomplete-list'); // gets the dropdown element
         if (list) {
-            let items = list.getElementsByTagName('div');
+            let items = list.querySelectorAll(':scope > div');
 
             if (e.keyCode === 40) { // DOWN arrow
                 currentFocus++;

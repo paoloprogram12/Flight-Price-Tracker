@@ -180,11 +180,21 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.autocomplete-items div {
+.autocomplete-items > div {
     padding: 10px;
     cursor: pointer;
-    border-bottom: 1px solid #e0e0e0;
     font-size: 0.9em;
+}
+
+.autocomplete-items > div > div {
+    padding: 0;
+    margin: 0;
+}
+
+.autocomplete-items .country {
+    font-size: 0.75em;
+    color: #666;
+    margin-top: 2px;
 }
 
 .autocomplete-items div:hover {
@@ -194,6 +204,10 @@ body {
 .autocomplete-active {
     background-color: #3498db;
     color: white;
+}
+
+.autocomplete-items > div.autocomplete-active .country {
+    color: rgba(0, 0, 0, 0.8);
 }
 
 /* SUBMIT BUTTON */

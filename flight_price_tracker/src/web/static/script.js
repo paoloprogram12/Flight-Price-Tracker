@@ -51,7 +51,11 @@ function setupAutocomplete(inputElement) {
         // shows the first 5 matches
         matches.slice(0, 5).forEach(airport => {
             const item = document.createElement('div'); // creates div for each suggestion
-            item.innerHTML = `<strong>${airport.code}</strong> - ${airport.city} (${airport.name})`;
+            item.innerHTML = `
+            <div>
+            <strong>${airport.code}</strong> - ${airport.city} (${airport.name})
+            </div>
+            <div class="country">${airport.country}</div>`;
             item.dataset.code = airport.code; // stores airport code in data attribute
 
             // when user clicks on a suggestion

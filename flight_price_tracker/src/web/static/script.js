@@ -13,8 +13,12 @@ fetch('/static/airports.json')
     .then(data => {
         airports = data; // store the data in our global variable
         // setup autocomplete after data is loaded
-        setupAutocomplete(document.getElementById('origin'));
-        setupAutocomplete(document.getElementById('destination'));
+
+        const originInput = document.getElementById('origin');
+        const destinationInput = document.getElementById('destination');
+
+        if (originInput) { setupAutocomplete(originInput); }
+        if (destinationInput) { setupAutocomplete(destinationInput); }
     })
     .catch(error => console.error('Error loading airport data: ', error));
 
@@ -123,14 +127,19 @@ function setupAutocomplete(inputElement) {
 }
 
 const today = new Date().toISOString().split('T')[0];
-document.getElementById('departure_date').setAttribute('min', today); // sets min attribute to todays date
+const departureDateInput = document.getElementById('departure_date');
+const returnDateInput = document.getElementById('return_date');
 
-// Updates the return date minimum when departure changes
-// runs code when departure date changes
-// sets return date min to departure date
-document.getElementById('departure_date').addEventListener('change', function() {
-    document.getElementById('return_date').setAttribute('min', this.value);
-});
+if (departureDateInput) {
+    departureDateInput.setAttribute('min', today); // sets min attribute to today's date
+
+    // updates return date minimum when departure changes
+    departureDateInput.addEventListener('change', function() {
+        if (returnDateInput) {
+            returnDateInput.setAttribute('min', this.value);
+        }
+    });
+}
 
 // handles trip type changes
 // querySelectorAll('input[name="trip_type"]') - finds all input elements with trip_type and returns a NodeList
@@ -157,16 +166,26 @@ tripTypeInputs.forEach(input => {
 });
 
 // setup autocomplete for results page search inputs (if they exist)
+console.log('Checking for results page inputs...');
 const resultsOrigin = document.getElementById('results-origin');
 const resultsDestination = document.getElementById('results-destination');
 
+console.log('Results origin:', resultsOrigin);
+console.log('Results destination:', resultsDestination);
+
 if (resultsOrigin && resultsDestination) {
+    console.log('Results inputs found! Waiting for airport data...');
     // wait for airport data to load, then setup autocomplete
     const checkAirportsLoaded = setInterval(() => {
+        console.log('Checking airports length:', airports.length);
         if (airports.length > 0) {
+            console.log('Setting up autocomplete for results page...');
             setupAutocomplete(resultsOrigin);
             setupAutocomplete(resultsDestination);
+            console.log('Autocomplete setup complete!');
             clearInterval(checkAirportsLoaded);
         }
     }, 100);
+} else {
+    console.log('Results inputs not found (probably on home page)');
 }

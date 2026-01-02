@@ -306,6 +306,7 @@ body:has(.results-container) {
     padding: 15px;
     background: #f8f9fa;
     border-radius: 8px;
+    overflow: visible;
 }
 
 /* Go Back Button (Top) */
@@ -345,6 +346,7 @@ body:has(.results-container) {
     gap: 10px;
     flex: 1;
     align-items: flex-end;
+    overflow: visible;
 }
 
 .inline-search-form input[type="text"],
@@ -369,6 +371,7 @@ body:has(.results-container) {
     flex-direction: column;
     flex: 1 1 0;
     min-width: 100px;
+    position: relative;
 }
 
 .inline-field label {

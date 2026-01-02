@@ -19,26 +19,27 @@ fetch('/static/airports.json')
     .catch(error => console.error('Error loading airport data: ', error));
 
 // autocomplete function
-// inputElement - the input field to attach autocomplete to
+// inputElement - the input field to attach autocomplete to (input field as a parameter)
 function setupAutocomplete(inputElement) {
-    let currentFocus = -1; // tracks which suggestion is highlighted
+    let currentFocus = -1; // tracks which suggestion is highlighted -1 means nothing, 0 is first item, 1 is second
 
     // Listen for when user types in the input field
     inputElement.addEventListener('input', function() {
         const inputValue = this.value.toUpperCase(); // convert to uppercase for matching
-        closeAllLists(); // close any already open dropdown
+        closeAllLists(); // close any already open dropdown (doesn't show any suggestions)
 
         if (!inputValue) { return; } // if the input is empty, don't show any suggestions
 
-        currentFocus = -1;
+        currentFocus = -1; // resets highlighting when new suggestions appear
 
         // create a div to hold the autocomplete suggestions
-        const autocompleteList = document.createElement('div');
-        autocompleteList.setAttribute('id', this.id + '-autocomplete-list');
-        autocompleteList.setAttribute('class', 'autocomplete-items');
-        this.parentNode.appendChild(autocompleteList);
+        const autocompleteList = document.createElement('div'); // creates a new HTML div element for each suggestion
+        autocompleteList.setAttribute('id', this.id + '-autocomplete-list'); // gives it an ID
+        autocompleteList.setAttribute('class', 'autocomplete-items'); // adds css class for styling
+        this.parentNode.appendChild(autocompleteList); // adds dropdown div as a child of form-group
 
         // filter airports that match what user typed
+        // for each airport object, it checks if it matches airport code, city name, or airport name
         const matches = airports.filter(airport => 
             airport.code.includes(inputValue) ||
             airport.city.toUpperCase().includes(inputValue) ||
@@ -47,24 +48,24 @@ function setupAutocomplete(inputElement) {
 
         // shows the first 5 matches
         matches.slice(0, 5).forEach(airport => {
-            const item = document.createElement('div');
+            const item = document.createElement('div'); // creates div for each suggestion
             item.innerHTML = `<strong>${airport.code}</strong> ~ ${airport.city} (${airport.name})`;
-            item.dataset.code = airport.code;
+            item.dataset.code = airport.code; // stores airport code in data attribute
 
             // when user clicks on a suggestion
-            item.addEventListener('click', function() {
-                inputElement.value = this.dataset.code;
-                closeAllLists();
+            item.addEventListener('click', function() { // when user clicks suggestion,
+                inputElement.value = this.dataset.code; // fills input with airport code
+                closeAllLists(); // closes dropdown
             });
 
-            autocompleteList.appendChild(item);
+            autocompleteList.appendChild(item); // adds the suggestion item to the dropdown list
 
         });
     });
 
     // handles keyboard navigation
     inputElement.addEventListener('keydown', function(e) {
-        let list = document.getElementById(this.id + '-autocomplete-list');
+        let list = document.getElementById(this.id + '-autocomplete-list'); // gets the dropdown element
         if (list) {
             let items = list.getElementsByTagName('div');
 
@@ -75,9 +76,9 @@ function setupAutocomplete(inputElement) {
                     currentFocus--;
                     addActive(items);    
                 } else if (e.keyCode === 13) { // ENTER key
-                    e.preventDefault();
-                    if (currentFocus > -1 && items[currentFocus]) {
-                        items[currentFocus].click();
+                    e.preventDefault(); // stops the form from submitting when you press enter
+                    if (currentFocus > -1 && items[currentFocus]) { // if something is highlighted (currentFocus > -1)
+                        items[currentFocus].click(); // and if it exists, simulate a click on it and selected the suggestion
                     }
                 }
         }
@@ -86,15 +87,15 @@ function setupAutocomplete(inputElement) {
     // highlights the active item
     function addActive(items) {
         if (!items) { return; }
-        removeActive(items);
-        if (currentFocus >= items.length) { currentFocus = 0; }
-        if (currentFocus < 0) { currentFocus = items.length - 1; }
-        items[currentFocus].classList.add('autocomplete-active');
+        removeActive(items); // removes highlight from all items
+        if (currentFocus >= items.length) { currentFocus = 0; } // if we went past the last item, loop back to first
+        if (currentFocus < 0) { currentFocus = items.length - 1; } // if we went before first item, loop to the last
+        items[currentFocus].classList.add('autocomplete-active'); // adds the CSS class to highlight the item
     }
 
     // removes highlight from all items
-    function removeActive(items) {
-        for (let i = 0; i < items.length; i++) {
+    function removeActive(items) { // loops through suggestion items
+        for (let i = 0; i < items.length; i++) { // removes highlight class from each one
             items[i].classList.remove('autocomplete-active');
         }
     }
@@ -104,7 +105,7 @@ function setupAutocomplete(inputElement) {
         const lists = document.getElementsByClassName('autocomplete-items');
         for (let i = 0; i < lists.length; i++) {
             if (except !== lists[i] && except !== inputElement) {
-                lists[i].parentNode.removeChild(lists[i]);
+                lists[i].parentNode.removeChild(lists[i]); // .removeChild() deletes it from the DOM
             }
         }
     }

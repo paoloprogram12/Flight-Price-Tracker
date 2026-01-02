@@ -25,16 +25,16 @@
             <p>{{ total_passengers }} passenger(s)</p>
         </div>
 
-        {% if flights %}
             <div class="results-search-bar">
-                <a href="/" class="back-button-top">← Go Back</a>
+                <a href="/" class="back-btn">← Go Back</a>
 
                 <form action="/search" method="POST" class="inline-search-form">
                     <input type="text" name="origin" id="results-origin" placeholder="Origin" value="{{ origin }}" required>
                     <input type="text" name="destination" id="results-destination" placeholder="Destination" value="{{ destination }}" required>
+                    <input type="date" name="departure_date" value="{{ departure_date }}" required>
                     {% if trip_type == 'round-trip' %}
-                        <input type="date" name="return_date" value="{{ return_date }}">
-                    {% endif % }
+                        <input type="date" name="return_date" value="{{ return_date }}" required>
+                    {% endif %}
 
                     <!-- Hidden filds to preserve other form data -->
                     <input type="hidden" name="trip_type" value="{{ trip_type }}">
@@ -46,6 +46,8 @@
                     <button type="submit" class="search-btn">Search</button>
                 </form>
             </div>
+
+        {% if flights %}
 
             <div class="flights-list">
                 {% for flight in flights %}
@@ -90,7 +92,6 @@
         {% else %}
             <div class="no-results">
                 <p>No flights found for this route and date.</p>
-                <a href="/" class="back-button">Search Again</a>
             </div>
         {% endif %}
     </div>

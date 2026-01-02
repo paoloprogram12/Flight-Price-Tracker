@@ -155,3 +155,18 @@ tripTypeInputs.forEach(input => {
         }
     });
 });
+
+// setup autocomplete for results page search inputs (if they exist)
+const resultsOrigin = document.getElementById('results-origin');
+const resultsDestination = document.getElementById('results-destination');
+
+if (resultsOrigin && resultsDestination) {
+    // wait for airport data to load, then setup autocomplete
+    const checkAirportsLoaded = setInterval(() => {
+        if (airports.length > 0) {
+            setupAutocomplete(resultsOrigin);
+            setupAutocomplete(resultsDestination);
+            clearInterval(checkAirportsLoaded);
+        }
+    }, 100);
+}

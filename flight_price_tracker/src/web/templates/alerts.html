@@ -8,6 +8,16 @@
 </head>
 <body>
 
+    <nav class="navbar">
+          <div class="nav-container">
+              <a href="/" class="nav-brand">✈️ Flight Tracker</a>
+              <div class="nav-links">
+                  <a href="/">Home</a>
+                  <a href="/alerts">Alerts</a>
+              </div>
+          </div>
+      </nav>
+
     <!-- Flash -->
      {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

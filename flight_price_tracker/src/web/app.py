@@ -55,7 +55,7 @@ def search():
             departure_at=departure_date,
             return_at=return_date if not one_way else None,
             one_way=one_way,
-            limit=20,
+            limit=15,
             adults=adults,
             children=children,
             infants=infant

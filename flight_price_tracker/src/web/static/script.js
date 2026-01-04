@@ -145,6 +145,7 @@ if (departureDateInput) {
 // querySelectorAll('input[name="trip_type"]') - finds all input elements with trip_type and returns a NodeList
 const tripTypeInputs = document.querySelectorAll('input[name="trip_type"]');
 const returnDateGroup = document.getElementById('return_date_group');
+const returnDateInputt = document.getElementById('return_date');
 
 // input - represents each radio button
 // adds a listener to each radio button
@@ -158,8 +159,8 @@ tripTypeInputs.forEach(input => {
             returnDateGroup.style.display = 'none';
             
         } else {
-            returnDateGroup.disabled = false;
-            returnDateGroup.required = true;
+            returnDateInputt.disabled = false;
+            returnDateInputt.required = true;
             returnDateGroup.style.display = 'block';
         }
     });

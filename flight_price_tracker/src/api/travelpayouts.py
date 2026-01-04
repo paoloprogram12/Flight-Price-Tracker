@@ -182,10 +182,10 @@ def prices_for_dates(origin: str, destination: str,
         print(f"DEBUG - Unexpected Error: {str(e)}")
         raise APIError(f"Flight search failed: {str(e)}")
     
-def parse_duration(duration_str: str) -> int:
+def parse_duration(duration_str: str) -> str:
     """
     Parse ISO 8601 duration to minutes.
-    Example: PT2H30M -> 150 minutes
+    Example: PT2H30M -> 2h 30 min
     """
     import re
 
@@ -202,7 +202,12 @@ def parse_duration(duration_str: str) -> int:
     if minute_match:
         minutes = int(minute_match.group(1))
 
-    return hours * 60 + minutes
+    if hours > 0 and minutes > 0:
+        return f"{hours}h {minutes}m"
+    elif hours > 0:
+        return f"{hours}h"
+    else:
+        return f"{minutes}m"
 
 if __name__ == "__main__":
     # Tests API

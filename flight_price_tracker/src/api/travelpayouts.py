@@ -95,13 +95,45 @@ def prices_for_dates(origin: str, destination: str,
             duration_str = itinerary['duration'] # Format:PT2H30M
             duration = parse_duration(duration_str)
 
+            # extract departure and arrival times
+            departure_datetime = first_segment['departure']['at'] # full datetime
+            arrival_datetime = last_segment['arrival']['at'] # full datetime
+            departure_time = departure_datetime[11:16] if len(departure_datetime) > 11 else None # HH:MM
+            arrival_time = arrival_datetime[11:16] if len(arrival_datetime) > 11 else None # HH:MM
+
+            # extract layover stops (intermediate airports)
+            layover_stops = []
+            if transfers > 0:
+                for i in range(len(segments) - 1): # exclude last segment
+                    layover_stops.append(segments[i]['arrival']['iataCode'])
+
+            # get return flight details if exists
+            return_departure_time = None
+            return_arrival_time = None
+            return_layover_stops = []
+            if return_itinerary:
+                return_segments = return_itinerary['segments']
+                return_departure_datetime = return_segments[0]['departure']['at']
+                return_arrival_datetime = return_segments[-1]['arrival']['at']
+                return_departure_time = return_departure_datetime[11:16] if len(return_departure_datetime) > 11 else None
+                return_arrival_time = return_arrival_datetime[11:16] if len(return_arrival_datetime) > 11 else None
+
+                # return flight layovers
+                if return_transfers > 0:
+                    for i in range(len(return_segments) - 1):
+                        return_layover_stops.append(return_segments[i]['arrival']['iataCode'])
+
             # Build result obj matching existing format
             results.append({
                 "price": float(offer['price']['total']),
                 "origin": first_segment['departure']['iataCode'],
                 "destination": last_segment['arrival']['iataCode'],
                 "depart_date": first_segment['departure']['at'][:10],  # YYYY-MM-DD
+                "departure_time": departure_time,
+                "arrival_time": arrival_time,
                 "return_date": return_itinerary['segments'][0]['departure']['at'][:10] if return_itinerary else None,
+                "return_departure_time": return_departure_time,
+                "return_arrival_time": return_arrival_time,
                 "airline": first_segment['carrierCode'],
                 "transfers": transfers,
                 "return_transfers": return_transfers,
@@ -165,94 +197,3 @@ if __name__ == "__main__":
     print(f"Found {len(results)} flights")
     if results:
         print(f"Cheapest: ${results[0]['price']}")
-
-# OLD TRAVELPAYOUTS API
-
-# TOKEN = os.getenv("TRAVELPAYOUTS_TOKEN")
-# BASE = "https://api.travelpayouts.com/aviasales/v3" # base url for travelpayouts API
-
-# class TPError(RuntimeError): ...
-# def _check_token(): # checks if the token is valid, if not valid, returns an error
-#     if not TOKEN:
-#         raise TPError("TRAVELPAYOUTS_TOKEN is missing. Put it in your .env")
-    
-#     # defines the main function signature
-# def prices_for_dates(origin: str, destination: str,
-#                      departure_at: str, return_at: str = None,
-#                      currency: str = "USD", limit: int = 30,
-#                      one_way: bool = False, direct: bool = False):
-#     """
-#     Fetch cheapest flight prices for specific dates from Travelpayouts API.
-
-#     Args:
-#         origin: IATA code of origin city/airport (e.g., "LAX")
-#         destination: IATA code of destination city/airport (e.g., "NRT")
-#         departure_at: Departure date in YYYY-MM-DD or YYYY-MM format
-#         return_at: Return date in YYYY-MM-DD or YYYY-MM format (None for one-way)
-#         currency: Currency code (default "USD")
-#         limit: Max number of results (default 30)
-#         one_way: True for one-way tickets, False for round-trip (default False)
-#         direct: True for non-stop flights only (default False)
-
-#     Returns:
-#         List of flight deals with price, dates, airline, etc.
-#     """
-#     _check_token() # calls the token checker function
-#     url = f"{BASE}/prices_for_dates" # build the full API url with the given parameters
-#     parameters = { # parameters for the API
-#         "origin": origin,
-#         "destination": destination,
-#         "departure_at": departure_at,
-#         "cy": currency,
-#         "sorting": "price",
-#         "direct": str(direct).lower(),  # API expects "true" or "false" strings
-#         "limit": limit,
-#         "page": 1,
-#         "one_way": str(one_way).lower(),  # API expects "true" or "false" strings
-#         "token": TOKEN,
-#         "market": "us"
-#     }
-
-#     # Only add return_at if provided (for round-trip tickets)
-#     if return_at and not one_way:
-#         parameters["return_at"] = return_at
-
-#     # for TYO->LAX debug
-#     print(f"DEBUG - API Request URL: {url}")
-#     print(f"DEBUG - Parameters: {parameters}")
-
-#     # makes the API request, adds parameters to the URL, and sets wait max to 25 sec before giving up
-#     r = requests.get(url, params=parameters, timeout=25)
-
-#     if r.status_code == 401:
-#         raise TPError("Unauthorized (401). Check TRAVELPAYOUTS_TOKEN")
-
-#     if r.status_code != 200:
-#         raise TPError(f"API Error ({r.status_code}): {r.text[:500]}")
-
-#     # built in function that raises an error if status isn;t 2xx
-#     r.raise_for_status()
-
-#     # parses the JSON response
-#     response_data = r.json()
-#     # extracts the flight data
-#     data = response_data.get("data", [])
-
-#     results = [] # stores cleaned-up flight data
-#     # iterates throught each flight and appends each parameter
-#     for it in data:
-#         results.append({
-#             "price": it.get("price"),  # Field is "price" not "value"
-#             "origin": it.get("origin"),
-#             "destination": it.get("destination"),
-#             "depart_date": it.get("departure_at"),
-#             "return_date": it.get("return_at"),
-#             "airline": it.get("airline"),
-#             "transfers": it.get("transfers"),  # Field is "transfers" not "number_of_changes"
-#             "return_transfers": it.get("return_transfers"),
-#             "duration": it.get("duration"),
-#             "flight_number": it.get("flight_number"),
-#             "link": it.get("link"),
-#         })
-#     return results
-

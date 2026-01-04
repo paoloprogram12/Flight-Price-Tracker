@@ -137,6 +137,8 @@ def prices_for_dates(origin: str, destination: str,
                 "airline": first_segment['carrierCode'],
                 "transfers": transfers,
                 "return_transfers": return_transfers,
+                "layover_stops": layover_stops,
+                "return_layover_stops": return_layover_stops,
                 "duration": duration,
                 "flight_number": f"{first_segment['carrierCode']}{first_segment['number']}",
                 "link": f"https://www.google.com/travel/flights?q=flights+from+{origin}+to+{destination}+on+{departure_at}"  # Generic booking link

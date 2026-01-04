@@ -103,6 +103,36 @@
                                 <span>Duration: {{ flight.duration }} min</span>
                             {% endif %}
                         </div>
+
+                        <!-- Flight Route Visualization -->
+                        <div class="flight-route">
+                            <!-- Outbound Flights -->
+                            <div class="route-line">
+                                <span class="airport-time">{{ flight.origin }} {{ flight.departure_time if flight.departure_time else '' }}</span>
+                                <span class="arrow-small">→</span>
+                                {% if flight.layover_stops %}
+                                    {% for stop in flight.layover_stops %}
+                                    <span class="airport-time layover">{{ stop }}</span>
+                                    <span class="arrow-small">→</span>
+                                    {% endfor %}
+                                {% endif %}
+                                <span class="airport-time">{{ flight.destination }} {{ flight.arrival_time if flight.arrival_time else '' }}</span>
+                            </div>
+                            <!-- Return Flights -->
+                            {% if flight.return_date %}
+                            <div class="route-line">
+                                <span class="airport-time">{{ flight.origin }} {{ flight.return_arrival_time if flight.return_arrival_time else '' }}</span>
+                                <span class="arrow-small">←</span>
+                                {% if flight.return_layover_stops %}
+                                    {% for stop in flight.return_layover_stops %}
+                                    <span class="airport-time layover">{{ stop }}</span>
+                                    <span class="arrow-small">←</span>
+                                    {% endfor %}
+                                {% endif %}
+                                <span class="airport-time">{{ flight.destination }} {{ flight.return_departure_time if flight.return_departure_time else '' }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
 
                     {% if flight.link %}

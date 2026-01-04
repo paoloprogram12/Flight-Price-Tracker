@@ -130,6 +130,10 @@ def prices_for_dates(origin: str, destination: str,
                 return_date_str = return_itinerary['segments'][0]['departure']['at'][:10].replace('-', '')
                 departure_date_str = first_segment['departure']['at'][:10].replace('-', '')
                 link = f"https://www.skyscanner.com/transport/flights/{first_segment['departure']['iataCode']}/{last_segment['arrival']['iataCode']}/{departure_date_str}/{return_date_str}/?adults={adults}&adultsv2={adults}&cabinclass=economy&children={children}&childrenv2=&inboundaltsenabled=false&infants={infants}&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=1"
+            else:
+                # for one way flights
+                departure_date_str = first_segment['departure']['at'][:10].replace('-', '')
+                link = f"https://www.skyscanner.com/transport/flights/{first_segment['departure']['iataCode']}/{last_segment['arrival']['iataCode']}/{departure_date_str}/?adults={adults}&adultsv2={adults}&cabinclass=economy&children={children}&childrenv2=&inboundaltsenabled=false&infants={infants}&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=0"
 
             # Build result obj matching existing format
             results.append({

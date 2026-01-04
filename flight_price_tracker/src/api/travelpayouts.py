@@ -24,7 +24,8 @@ class APIError(RuntimeError):
 def prices_for_dates(origin: str, destination: str,
                      departure_at: str, return_at: str = None,
                      currency: str = "USD", limit: int = 30,
-                     one_way:bool = False, direct: bool = False):
+                     one_way:bool = False, direct: bool = False, adults: int = 1, children: int = 0,
+                     infants: int = 0):
     """
     Fetch cheapest flight prices for specific dates from Amadeus API.
     
@@ -52,7 +53,7 @@ def prices_for_dates(origin: str, destination: str,
             'originLocationCode': origin,
             'destinationLocationCode': destination,
             'departureDate': departure_at,
-            'adults': 1,
+            'adults': adults,
             'currencyCode': currency,
             'max': min(limit, 250)  # Amadeus max is 250
         }
@@ -123,6 +124,13 @@ def prices_for_dates(origin: str, destination: str,
                     for i in range(len(return_segments) - 1):
                         return_layover_stops.append(return_segments[i]['arrival']['iataCode'])
 
+            # build skyscanner deep link
+            if return_itinerary:
+                # round trip format: /origin/destination/departdate/returndate
+                return_date_str = return_itinerary['segments'][0]['departure']['at'][:10].replace('-', '')
+                departure_date_str = first_segment['departure']['at'][:10].replace('-', '')
+                link = f"https://www.skyscanner.com/transport/flights/{first_segment['departure']['iataCode']}/{last_segment['arrival']['iataCode']}/{departure_date_str}/{return_date_str}/?adults={adults}&adultsv2={adults}&cabinclass=economy&children={children}&childrenv2=&inboundaltsenabled=false&infants={infants}&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=1"
+
             # Build result obj matching existing format
             results.append({
                 "price": float(offer['price']['total']),
@@ -141,7 +149,7 @@ def prices_for_dates(origin: str, destination: str,
                 "return_layover_stops": return_layover_stops,
                 "duration": duration,
                 "flight_number": f"{first_segment['carrierCode']}{first_segment['number']}",
-                "link": f"https://www.google.com/travel/flights?q=flights+from+{origin}+to+{destination}+on+{departure_at}"  # Generic booking link
+                "link": link  # Generic booking link
             })
 
         # sort by price

@@ -2,8 +2,17 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
 import sys
 import os
+import json
 
 load_dotenv()
+
+# load airport data at startup
+base_dir = os.path.dirname(os.path.abspath(__file__))
+airports_path = os.path.join(base_dir, 'static', 'airports.json')
+
+with open(airports_path) as f:
+    airports_data = json.load(f)
+    airports = {a['code']: a for a in airports_data}
 
 # add parent directory to path to import from src.core
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))) # shows where to find db.py
@@ -46,17 +55,38 @@ def search():
             departure_at=departure_date,
             return_at=return_date if not one_way else None,
             one_way=one_way,
-            limit=30
+            limit=30,
+            adults=adults,
+            children=children,
+            infants=infant
         )
+
+        # assign cities
+        for flight in flights:
+            flight['origin_city'] = airports.get(flight['origin'], {}).get('city', flight['origin'])
+            flight['destination_city'] = airports.get(flight['destination'], {}).get('city', flight['destination'])
+            flight['origin_country'] = airports.get(flight['origin'], {}).get('country', flight['origin'])
+            flight['destination_country'] = airports.get(flight['destination'], {}).get('country', flight['destination'])
+
 
         # calculate total passengers
         total_passengers = adults + children + infant
+
+        # Look up city names for the search summary
+        origin_city = airports.get(origin, {}).get('city', origin)
+        origin_country = airports.get(origin, {}).get('country', '')
+        destination_city = airports.get(destination, {}).get('city', destination)
+        destination_country = airports.get(destination, {}).get('country', '')
 
         # pass data to the template
         return render_template('results.html',
                                flights=flights,
                                origin=origin,
                                destination=destination,
+                               origin_city=origin_city,
+                               origin_country=origin_country,
+                               destination_city=destination_city,
+                               destination_country=destination_country,
                                departure_date=departure_date,
                                return_date=return_date,
                                trip_type=trip_type,
@@ -64,6 +94,7 @@ def search():
     except Exception as e:
         flash(f'Error searching flights: {str(e)}', 'error')
         return redirect(url_for('home'))
+
 
 # display alerts signup form
 @app.route('/alerts')

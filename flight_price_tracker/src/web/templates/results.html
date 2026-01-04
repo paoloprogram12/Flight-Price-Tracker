@@ -20,7 +20,11 @@
     <div class="results-container">
         <div class="search-summary">
             <h1>Flight Results</h1>
-            <p>{{ origin }} → {{ destination }}</p>
+            <div class="route-summary">
+                <span class="route-city">{{ origin_city }}, {{ origin_country }} ({{ origin }})</span>
+                <span class="route-arrow">→</span>
+                <span class="route-city">{{ destination_city }}, {{ destination_country }} ({{ destination }})</span>
+            </div>
             <p>{{ departure_date }}{% if return_date %} - {{ return_date }}{% endif %}</p>
             <p>{{ total_passengers }} passenger(s)</p>
         </div>
@@ -82,12 +86,12 @@
                     <div class="flight-details">
                         <div class="route">
                             <div class="departure">
-                                <strong>{{ flight.origin }}</strong>
+                                <strong>{{ flight.origin_city }}, {{ flight.origin_country }}</strong>
                                 <p>{{ flight.depart_date }}</p>
                             </div>
                             <div class="arrow">→</div>
                             <div class="arrival">
-                                <strong>{{ flight.destination }}</strong>
+                                <strong>{{ flight.destination_city }}, {{ flight.destination_country }}</strong>
                                 <p>{{ flight.return_date if flight.return_date else 'One-way' }}</p>
                             </div>
                         </div>

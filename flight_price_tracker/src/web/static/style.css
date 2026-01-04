@@ -461,6 +461,10 @@ body:has(.results-container) {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
+.flight-card.hidden {
+    display: none;
+}
+
 /* Flight Header (Airline and Price) */
 .flight-header {
     display: flex;
@@ -584,6 +588,28 @@ body:has(.results-container) {
     font-size: 1.3em;
     color: #666;
     margin-bottom: 30px;
+}
+
+/* Show More Button */
+.show-more-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.show-more-btn {
+    padding: 12px 30px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.show-more-btn:hover {
+    background-color: #2980b9;
 }
 
 /* RESPONSIVE DESIGN (MOBILE DEVICES) */

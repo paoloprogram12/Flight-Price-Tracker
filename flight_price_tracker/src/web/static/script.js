@@ -189,3 +189,31 @@ if (resultsOrigin && resultsDestination) {
 } else {
     console.log('Results inputs not found (probably on home page)');
 }
+
+// Pagination for flight results
+const showMoreBtn = document.getElementById('showMoreBtn');
+
+if (showMoreBtn) {
+    let currentlyShowing = 5; // starts w/ 5 flights
+    const flightCards = document.querySelectorAll('.flight-card');
+    const totalFlights = flightCards.length;
+
+    showMoreBtn.addEventListener('click', function() {
+        // show next 5 flights
+        const nextBatch = currentlyShowing + 5;
+
+        for (let i = currentlyShowing; i < nextBatch && i < totalFlights; i++) {
+            flightCards[i].classList.remove('hidden');
+        }
+
+        currentlyShowing = Math.min(nextBatch, totalFlights);
+
+        // update button text with remaining count
+        const remaining = totalFlights - currentlyShowing;
+        if (remaining > 0) {
+            this.textContent = `Show More`;
+        } else {
+            this.style.display = 'none'; // hides button
+        }
+    });
+}

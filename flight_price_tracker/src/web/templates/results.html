@@ -69,7 +69,11 @@
 
             <div class="flights-list">
                 {% for flight in flights %}
-                <div class="flight-card">
+                {% if loop.index0 >= 5 %}
+                <div class="flight-card hidden" data-flight-index="{{ loop.index0 }}">
+                {% else %}
+                <div class="flight-card" data-flight-index="{{ loop.index0 }}">
+                {% endif %}
                     <div class="flight-header">
                         <div class="airline">{{ flight.airline }}</div>
                         <div class="price">${{ flight.price }}</div>
@@ -107,6 +111,11 @@
                 </div>
                 {% endfor %}
             </div>
+            {% if flights|length > 5 %}
+            <div class="show-more-container">
+                <button id="showMoreBtn" class="show-more-btn">Show More</button>
+            </div>
+            {% endif %}
         {% else %}
             <div class="no-results">
                 <p>No flights found for this route and date.</p>

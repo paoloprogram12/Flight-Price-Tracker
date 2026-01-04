@@ -14,7 +14,7 @@ A web application to track and compare flight prices, with price alert notificat
 
 - **Backend**: Flask (Python)
 - **Frontend**: HTML, CSS, JavaScript
-- **Database**: SQLite
+- **Database**: MySQL
 - **APIs**:
   - Amadeus Flight Offers API (flight search and pricing)
   - Twilio (SMS notifications)

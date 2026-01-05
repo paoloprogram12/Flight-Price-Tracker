@@ -818,6 +818,89 @@ body:has(.results-container) {
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
+/* === HOME PAGE ABOUT SECTION === */
+.about-section {
+    background: rgba(10, 25, 47, 0.9);
+    padding: 80px 20px;
+    margin-top: 100px;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-section h2 {
+    text-align: center;
+    color: white;
+    font-size: 2.5em;
+    margin-bottom: 50px;
+    text-shadow: 2px 2px 10px rgb(0, 0, 0, 0.5);
+}
+
+.about-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.about-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.about-box P {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1em;
+}
+
+.about-box ul {
+    list-style: none;
+    padding: 0;
+    color: #555;
+}
+
+.about-box ul {
+    list-style: none;
+    padding: 0;
+    color: #555;
+}
+
+.about-box ul li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #3498db;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.about-footer {
+    text-align: center;
+    color: white;
+    padding-top: 30px;
+    border-top: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.about-footer p {
+    margin: 10px 0;
+    font-size: 1em;
+}
+
+.about-footer strong {
+    color: #3498db;
+}
+
 /* RESPONSIVE DESIGN (MOBILE DEVICES) */
 @media (max-width: 900px) {
     .results-search-bar {

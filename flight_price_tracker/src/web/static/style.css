@@ -14,6 +14,8 @@ body {
     /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
     min-height: 100vh;
     padding: 20px;
+    margin: 0;
+    padding: 20px 20px 0 20px;
 }
 
 /* === HOME PAGE === */
@@ -820,9 +822,17 @@ body:has(.results-container) {
 
 /* === HOME PAGE ABOUT SECTION === */
 .about-section {
-    background: rgba(10, 25, 47, 0.9);
-    padding: 80px 20px;
-    margin-top: 100px;
+    background: linear-gradient(135deg,
+        rgba(28, 49, 94, 0.90) 0%,
+        rgba(41, 128, 185, 0.9) 50%,
+        rgba(32, 98, 212, 0.87) 65%,
+        rgba(30, 100, 160, 0.85) 100%);
+    padding: 80px 20px 60px 20px;
+    margin-top: 150px;
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-bottom: -20px;
+    width: calc(100% + 40px);
 }
 
 .about-container {
@@ -851,6 +861,8 @@ body:has(.results-container) {
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .about-box:hover {
@@ -870,10 +882,10 @@ body:has(.results-container) {
     color: #555;
 }
 
-.about-box ul {
-    list-style: none;
-    padding: 0;
-    color: #555;
+.about-box ul li {
+    padding: 5px 0;
+    padding-left: 30px;
+    position: relative;
 }
 
 .about-box ul li::before {
@@ -898,7 +910,7 @@ body:has(.results-container) {
 }
 
 .about-footer strong {
-    color: #3498db;
+    color: #c084fc;
 }
 
 /* RESPONSIVE DESIGN (MOBILE DEVICES) */

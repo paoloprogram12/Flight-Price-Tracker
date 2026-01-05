@@ -565,6 +565,20 @@ body:has(.results-container) {
     gap: 15px;
     align-items: center;
     flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.flight-info .duration-left {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.flight-info .duration-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-left: auto;
 }
 
 .flight-info span {
@@ -573,19 +587,19 @@ body:has(.results-container) {
 }
 
 /* Badges */
-.badge {
+.flight-info .badge {
     display: inline-block;
     padding: 5px 12px;
-    background-color: #e0e0e0;
-    color: #666;
+    background-color: #e67e22;
+    color: white !important;
     border-radius: 20px;
     font-size: 0.85em;
     font-weight: 600;
 }
 
-.badge.direct {
+.flight-info .badge.direct {
     background-color: #27ae60;
-    color: white;
+    color: white !important;
 }
 
 /* Book Now Button */

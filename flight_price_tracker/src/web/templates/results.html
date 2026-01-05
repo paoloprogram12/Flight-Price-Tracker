@@ -97,14 +97,27 @@
                         </div>
 
                         <div class="flight-info">
-                            {% if flight.transfers == 0 %}
-                                <span class="badge direct">Direct</span>
-                            {% else %}
-                                <span class="badge">{{ flight.transfers }} stop(s)</span>
-                            {% endif %}
+                            <div class="duration-left">
+                                {% if flight.transfers == 0 %}
+                                    <span class="badge direct">Direct</span>
+                                {% else %}
+                                    <span class="badge">{{ flight.transfers }} stop(s)</span>
+                                {% endif %}
 
-                            {% if flight.duration %}
-                                <span>Duration: {{ flight.duration }}</span>
+                                {% if flight.duration %}
+                                    <span>Outbound: {{ flight.duration }}</span>
+                                {% endif %}
+                            </div>
+
+                            {% if flight.return_duration or flight.return_transfers %}
+                                <div class="duration-right">
+                                    <span>Return: {{ flight.return_duration }}</span>
+                                    {% if flight.return_transfers == 0 %}
+                                        <span class="badge direct">Direct</span>
+                                    {% else %}
+                                        <span class="badge">{{ flight.return_transfers }} stop(s)</span>
+                                    {% endif %}
+                                </div>
                             {% endif %}
                         </div>
 

@@ -96,6 +96,12 @@ def prices_for_dates(origin: str, destination: str,
             duration_str = itinerary['duration'] # Format:PT2H30M
             duration = parse_duration(duration_str)
 
+            # calculate return flight duration if it exists
+            return_duration = None
+            if return_itinerary:
+                return_duration_str = return_itinerary['duration']
+                return_duration = parse_duration(return_duration_str)
+
             # extract departure and arrival times
             departure_datetime = first_segment['departure']['at'] # full datetime
             arrival_datetime = last_segment['arrival']['at'] # full datetime
@@ -152,6 +158,7 @@ def prices_for_dates(origin: str, destination: str,
                 "layover_stops": layover_stops,
                 "return_layover_stops": return_layover_stops,
                 "duration": duration,
+                "return_duration": return_duration,
                 "flight_number": f"{first_segment['carrierCode']}{first_segment['number']}",
                 "link": link  # Generic booking link
             })

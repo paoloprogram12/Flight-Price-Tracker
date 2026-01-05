@@ -914,6 +914,31 @@ body:has(.results-container) {
     color: #c084fc;
 }
 
+.social-links {
+    margin-top: 15px;
+}
+.social-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+    color: #c084fc;
+    text-decoration: none !important;
+    border: none;
+    outline: none;
+}
+
+.social-links i {
+    font-size: 1.3em;
+}
+
 /* RESPONSIVE DESIGN (MOBILE DEVICES) */
 @media (max-width: 900px) {
     .results-search-bar {

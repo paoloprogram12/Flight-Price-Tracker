@@ -234,3 +234,20 @@ if (priceInput) {
         this.value = this.value.replace(/[^0-9.]/g, '');
     });
 }
+
+// creates smooth scroll to the about section
+document.querySelectorAll('a[href="/#about"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+        // only prevent default if we're in the home page alr
+        if (window.location.pathname === '/') {
+            e.preventDefault();
+            const aboutSection = document.getElementById('about');
+            if (aboutSection) {
+                aboutSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+    });
+});

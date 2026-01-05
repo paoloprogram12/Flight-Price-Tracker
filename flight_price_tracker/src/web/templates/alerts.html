@@ -27,62 +27,74 @@
         {% endif %}
      {% endwith %}
 
-    <h1>🔔 Set Up Price Alert</h1>
-    <p>Get notified when flight prices drop below your target price</p>
-
-    <form action="/alerts/create" method="POST">
-        <div class="form-group">
-            <label for="origin">Origin Airport:</label>
-            <input type="text" id="origin" name="origin" placeholder="e.g., LAX" required>
+    <div class="alerts-container">
+        <div class="alerts-header">
+            <h1>🔔 Set Up Price Alert</h1>
+            <p>Get notified when flight prices drop below your target price!</p>
         </div>
 
-        <div class="form-group">
-            <label for="destination">Destination Airport:</label>
-            <input type="text" name="destination" id="destination" placeholder="e.g., TYO" required>
+        <div class="alerts-form-card">
+            <form action="/alerts/create" method="POST">
+                <div class="form-group">
+                    <label for="origin">Origin Airport:</label>
+                    <input type="text" id="origin" name="origin" placeholder="e.g., LAX" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="destination">Destination Airport:</label>
+                    <input type="text" name="destination" id="destination" placeholder="e.g., HND" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="departure_date">Departure Date:</label>
+                    <input type="date" name="departure_date" id="departure_date" required>
+                </div>
+
+                <div class="form-group" id="return_date_group">
+                    <label for="return_date">Return Date:</label>
+                    <input type="date" name="return_date" id="return_date">
+                </div>
+
+                <div class="form-group">
+                    <label class="main-label">Trip Type:</label>
+                    <div class="radio-group">
+                        <input type="radio" id="round_trip" name="trip_type" value="round-trip" checked>
+                        <label for="round-trip">Round-Trip</label>
+
+                        <input type="radio" name="trip_type" id="one_way" value="one-way">
+                        <label for="one_way">One-Way</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="price_threshold">Alert me if price drops below:</label>
+                    <div class="price-input-wrapper">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" id="price_threshold" name="price_threshold"
+                               placeholder="500" step="0.01" min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number (for SMS alerts):</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+15551234567" required>
+                    <small>Format: +1XXXXXXXXXX (include country code)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email (optional, for future use):</label>
+                    <input type="email" name="email" id="email" placeholder="your@email.com">
+                </div>
+
+                <button type="submit">Create Alert</button>
+            </form>
+
+            <div class="back-link">
+                <a href="/">← Back to Flight Search</a>
+            </div>
+
         </div>
-
-        <div class="form-group">
-            <label for="departure_date">Departure Date:</label>
-            <input type="date" id="departure_date" name="departure_date" required>
-        </div>
-
-        <div class="form-group" id="return_date_group">
-            <label for="return_date">Return Date:</label>
-            <input type="date" name="return_date" id="return_date">
-        </div>
-
-        <div class="form-group">
-            <label>Trip Type:</label>
-            <input type="radio" name="trip_type" value="round-trip" checked>
-            <label for="round_trip">Round-Trip</label>
-
-            <input type="radio" id="one_way" name="trip_type" value="one-way">
-            <label for="one_way">One-Way</label>
-        </div>
-
-        <div class="form-group">
-            <label for="price_threshold">Alert me if price drops below:</label>
-            <input type="number" id="price_threshold" name="price_threshold"
-                   placeholder="e.g., 500" step="0.01" min="0" required>
-            <span>USD</span>
-        </div>
-
-        <div class="form-group">
-            <label for="phone">Phone Number (for SMS alerts):</label>
-            <input type="tel" id="phone" name="phone" placeholder="+15551234567" required>
-            <small>Format: +1XXXXXXXXXX (include country code)</small>
-        </div>
-
-        <div class="form-group">
-            <label for="email">Email (optional, for future use):</label>
-            <input type="email" name="email" id="email" placeholder="your@email.com">
-        </div>
-
-        <button type="submit">Create Alert</button>
-    </form>
-
-    <br>
-    <a href="/">Back to Flight Search</a>
+    </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 

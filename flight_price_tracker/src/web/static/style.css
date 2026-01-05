@@ -678,6 +678,132 @@ body:has(.results-container) {
     font-size: 1.2em;
 }
 
+/* === ALERTS PAGE === */
+.alerts-container {
+    max-width: 600px;
+    margin: 80px auto 40px;
+    padding: 0 20px;
+}
+
+.alerts-header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.alerts-header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.alerts-header p {
+    font-size: 1.2em;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.alerts-form-card {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.back-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.radio-group input[type="radio"] {
+    margin: 0;
+}
+
+.radio-group label {
+    font-weight: normal;
+    margin: 0;
+}
+
+.main-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.back-link a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.back-link a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+/* Enhanced input styling for alerts */
+.form-group input[type="number"],
+.form-group input[type="tel"],
+.form-group input[type="email"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+/* Price threshold with USD label */
+.price-input-wrapper {
+    position: relative;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-weight: 600;
+    font-size: 1.1em;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.price-input-wrapper input[type="number"] {
+    width: 100%;
+    padding-left: 35px !important;
+    padding-right: 15px !important;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+}
+
+/* Phone number helper text */
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 0.85em;
+    font-size: italic;
+}
+
+/* Focus states */
+.form-group input[type="number"]:focus,
+.form-group input[type="tel"]:focus,
+.form-group input[type="email"]:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
 /* RESPONSIVE DESIGN (MOBILE DEVICES) */
 @media (max-width: 900px) {
     .results-search-bar {

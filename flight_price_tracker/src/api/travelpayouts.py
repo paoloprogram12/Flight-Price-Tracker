@@ -121,6 +121,7 @@ def prices_for_dates(origin: str, destination: str,
             # get return flight details if exists
             return_departure_time = None
             return_arrival_time = None
+            return_airline = None
             return_layover_stops = []
             if return_itinerary:
                 return_segments = return_itinerary['segments']
@@ -128,6 +129,10 @@ def prices_for_dates(origin: str, destination: str,
                 return_arrival_datetime = return_segments[-1]['arrival']['at']
                 return_departure_time_24hr = return_departure_datetime[11:16] if len(return_departure_datetime) > 11 else None
                 return_arrival_time_24hr = return_arrival_datetime[11:16] if len(return_arrival_datetime) > 11 else None
+
+
+                # gets return airline if it exists
+                return_airline = return_segments[0]['carrierCode']
 
                 # convert to 12hr
                 return_departure_time = format_time_12hr(return_departure_time_24hr)
@@ -161,6 +166,7 @@ def prices_for_dates(origin: str, destination: str,
                 "return_departure_time": return_departure_time,
                 "return_arrival_time": return_arrival_time,
                 "airline": first_segment['carrierCode'],
+                "return_airline": return_airline,
                 "transfers": transfers,
                 "return_transfers": return_transfers,
                 "layover_stops": layover_stops,

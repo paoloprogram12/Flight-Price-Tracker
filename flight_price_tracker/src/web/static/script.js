@@ -217,3 +217,20 @@ if (showMoreBtn) {
         }
     });
 }
+
+// Prevents letters in phone number input
+const phoneInput = document.getElementById('phone');
+if (phoneInput) {
+    phoneInput.addEventListener('input', function(e) {
+        // Allow only + and numbers
+        this.value = this.value.replace(/[^0-9+]/g, '');
+    });
+}
+
+//  prevent letters in price
+const priceInput = document.getElementById('price_threshold');
+if (priceInput) {
+    priceInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9.]/g, '');
+    });
+}

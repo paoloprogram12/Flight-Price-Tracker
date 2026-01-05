@@ -105,8 +105,12 @@ def prices_for_dates(origin: str, destination: str,
             # extract departure and arrival times
             departure_datetime = first_segment['departure']['at'] # full datetime
             arrival_datetime = last_segment['arrival']['at'] # full datetime
-            departure_time = departure_datetime[11:16] if len(departure_datetime) > 11 else None # HH:MM
-            arrival_time = arrival_datetime[11:16] if len(arrival_datetime) > 11 else None # HH:MM
+            departure_time_24hr = departure_datetime[11:16] if len(departure_datetime) > 11 else None # HH:MM
+            arrival_time_24hr = arrival_datetime[11:16] if len(arrival_datetime) > 11 else None # HH:MM
+
+            # converts to 12hr
+            departure_time = format_time_12hr(departure_time_24hr)
+            arrival_time = format_time_12hr(arrival_time_24hr)
 
             # extract layover stops (intermediate airports)
             layover_stops = []
@@ -122,8 +126,12 @@ def prices_for_dates(origin: str, destination: str,
                 return_segments = return_itinerary['segments']
                 return_departure_datetime = return_segments[0]['departure']['at']
                 return_arrival_datetime = return_segments[-1]['arrival']['at']
-                return_departure_time = return_departure_datetime[11:16] if len(return_departure_datetime) > 11 else None
-                return_arrival_time = return_arrival_datetime[11:16] if len(return_arrival_datetime) > 11 else None
+                return_departure_time_24hr = return_departure_datetime[11:16] if len(return_departure_datetime) > 11 else None
+                return_arrival_time_24hr = return_arrival_datetime[11:16] if len(return_arrival_datetime) > 11 else None
+
+                # convert to 12hr
+                return_departure_time = format_time_12hr(return_departure_time_24hr)
+                return_arrival_time = format_time_12hr(return_arrival_time_24hr)
 
                 # return flight layovers
                 if return_transfers > 0:
@@ -189,6 +197,26 @@ def prices_for_dates(origin: str, destination: str,
         print(f"DEBUG - Unexpected Error: {str(e)}")
         raise APIError(f"Flight search failed: {str(e)}")
     
+def format_time_12hr(time_24hr) -> str:
+
+    if not time_24hr:
+        return None
+    
+    hours, minutes = time_24hr.split(':')
+    hours = int(hours)
+    minutes = int(minutes)
+
+    if hours >= 12:
+        meridian = "PM"
+        if hours > 12:
+            hours = hours - 12
+    else:
+        meridian = "AM"
+        if hours == 0:
+            hours = 12
+
+    return f"{hours}:{minutes:02d} {meridian}"
+
 def parse_duration(duration_str: str) -> str:
     """
     Parse ISO 8601 duration to minutes.

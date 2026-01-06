@@ -82,9 +82,19 @@
                 {% endif %}
                     <div class="flight-header">
                         <div class="airline">
-                            {{ flight.airline }}
-                            {% if flight.return_airline and flight.return_airline != flight.airline %}
-                                / {{ flight.return_airline }}
+                            {% if flight.airline_img %}
+                                <img src="{{ url_for('static', filename=flight.airline_img) }}" alt="{{ flight.airline_name }}" class="airline-logo"> 
+                            {% else %}
+                                <span>{{ flight.airline_name }}</span>
+                            {% endif %}
+                            {% if flight.return_name and flight.return_airline != flight.airline %}
+                                <span class="airline-separator">/</span>
+                                {% if flight.return_airline_img %}
+                                    <img src="{{ url_for('static', filename=flight.return_airline_img) }}" alt="{{ flight.return_airline_name }}" class="airline-logo">
+                                {% else %}
+                                    <span>{{ flight.airline_name }}</span>
+                                {% endif %}
+                                <span>{{ flight.return_airline_name }}</span>
                             {% endif %}
                         </div>
                         <div class="price">${{ flight.price }}</div>

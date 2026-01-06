@@ -16,6 +16,7 @@ with open(airports_path) as f:
     airports_data = json.load(f)
     airports = {a['code']: a for a in airports_data}
 
+with open(airlines_path) as f:
     airlines_data = json.load(f)
     airlines = {a['code']: a for a in airlines_data}
 
@@ -78,9 +79,9 @@ def search():
             flight['airline_img'] = airline_info.get('img', None)
 
             # return airline info
-            if flight.fet('return_airline'):
+            if flight.get('return_airline'):
                 return_airline_info = airlines.get(flight['return_airline'], {})
-                flight['return_airline_name'] = return_airline_info.get('name', flight['returin_airline'])
+                flight['return_airline_name'] = return_airline_info.get('name', flight['return_airline'])
                 flight['return_airline_img'] = return_airline_info.get('img', None)
 
 

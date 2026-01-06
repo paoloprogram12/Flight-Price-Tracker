@@ -9,10 +9,15 @@ load_dotenv()
 # load airport data at startup
 base_dir = os.path.dirname(os.path.abspath(__file__))
 airports_path = os.path.join(base_dir, 'static', 'airports.json')
+airlines_path = os.path.join(base_dir, 'static', 'airlines.json')
 
 with open(airports_path) as f:
+    # airports
     airports_data = json.load(f)
     airports = {a['code']: a for a in airports_data}
+
+    airlines_data = json.load(f)
+    airlines = {a['code']: a for a in airlines_data}
 
 # add parent directory to path to import from src.core
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))) # shows where to find db.py
@@ -61,12 +66,22 @@ def search():
             infants=infant
         )
 
-        # assign cities
+        # assign cities and airline info
         for flight in flights:
             flight['origin_city'] = airports.get(flight['origin'], {}).get('city', flight['origin'])
             flight['destination_city'] = airports.get(flight['destination'], {}).get('city', flight['destination'])
             flight['origin_country'] = airports.get(flight['origin'], {}).get('country', flight['origin'])
             flight['destination_country'] = airports.get(flight['destination'], {}).get('country', flight['destination'])
+
+            airline_info = airlines.get(flight['airline'], {})
+            flight['airline_name'] = airline_info.get('name', flight['airline'])
+            flight['airline_img'] = airline_info.get('img', None)
+
+            # return airline info
+            if flight.fet('return_airline'):
+                return_airline_info = airlines.get(flight['return_airline'], {})
+                flight['return_airline_name'] = return_airline_info.get('name', flight['returin_airline'])
+                flight['return_airline_img'] = return_airline_info.get('img', None)
 
 
         # calculate total passengers

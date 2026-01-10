@@ -43,6 +43,10 @@ def init_db():
                            price_threshold DECIMAL(10,2) NOT NULL,
                            trip_type VARCHAR(20) NOT NULL,
                            is_active BOOLEAN DEFAULT TRUE,
+                           email_verified BOOLEAN DEFAULT FALSE,
+                           phone_verified BOOLEAN DEFAULT FALSE,
+                           verification_token VARCHAR(255),
+                           token_created_at TIMESTAMP NULL,
                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                            last_checked TIMESTAMP NULL
                             )

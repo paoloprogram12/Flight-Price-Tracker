@@ -23,7 +23,7 @@ def send_verification_email(to_email, verification_token, alert_details):
         verification_link = f"{BASE_URL}/verify-email?token={verification_token}"
 
         # reads HTML template
-        template_path = os.path.join(os.path.dirname(__file__), 'email_templates', 'verification_email.html')
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'web', 'templates', 'verification_email.html')
         with open(template_path, 'r') as f:
             html_template = f.read()
 

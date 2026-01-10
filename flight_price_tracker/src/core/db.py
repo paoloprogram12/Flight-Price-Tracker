@@ -59,7 +59,7 @@ def init_db():
     finally:
         connection.close()
 
-def create_alert(phone, origin, destination, departure_date, return_date, price_threshold, trip_type, email=None):
+def create_alert(phone, origin, destination, departure_date, return_date, price_threshold, trip_type, email=None, verification_token=None):
     """
       Create a new price alert.
       
@@ -82,11 +82,11 @@ def create_alert(phone, origin, destination, departure_date, return_date, price_
             sql = """
                 INSERT INTO price_alerts
                 (phone, email, origin, destination, departure_date, return_date,
-                price_threshold, trip_type, is_active)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                price_threshold, trip_type, is_active, verification_token, token_created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(sql, (phone, email, origin, destination, departure_date, return_date,
-                                price_threshold, trip_type, True))
+                                price_threshold, trip_type, True, verification_token, datetime.now() if verification_token else None))
             connection.commit()
             return cursor.lastrowid
     except pymysql.Error as e:
@@ -161,6 +161,47 @@ def get_alert_by_id(alert_id):
           raise
       finally:
           connection.close()
+
+# tokens are used to store a specific alert
+# email verified sets email_verified=TRUE for alert
+# tokens are used for security and uniqueness
+def verify_email_token(token):
+    """
+    Verify an email using the verification token.
+    
+    Args:
+        token: The verification token from the email link
+
+    Returns: True if verification successful, False otherwise
+    """
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            # Find alert with this token
+            cursor.execute("""
+                SELECT id FROM price_alerts
+                WHERE verification_token = %
+                AND email_verified = FALSE
+            """, (token,))
+
+            alert = cursor.fetchone()
+            if not alert:
+                return False
+            
+            # Mark email as verified
+            cursor.execute("""
+                UPDATE price_alerts
+                SET email_verified = TRUE
+                WHERE id = %s
+            """, (alert['id'],))
+
+            connection.commit()
+            return True
+    except pymysql.Error as e:
+        print(f"Error verifying email token: {e}")
+        return False
+    finally:
+        connection.close()
 
 # initialize db when module is imported
 if __name__ == "__main__":

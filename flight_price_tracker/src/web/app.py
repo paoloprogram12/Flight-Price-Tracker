@@ -24,6 +24,7 @@ with open(airlines_path) as f:
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))) # shows where to find db.py
 
 from src.core.db import create_alert, get_active_alerts
+from src.core.email import generate_verification_token, send_verification_email
 
 # creates app
 app = Flask(__name__)
@@ -139,6 +140,9 @@ def create_alert_route():
             flash('Phone number must include country code (e.g., +15551234567)', 'error')
             return redirect(url_for('alerts'))
         
+        # Generate verification token
+        verification_token = generate_verification_token()
+
         # Save to database
         alert_id = create_alert(
             phone=phone,
@@ -148,10 +152,15 @@ def create_alert_route():
             return_date=return_date,
             price_threshold=price_threshold,
             trip_type=trip_type,
-            email=email
+            email=email,
+            verification_token=verification_token
         )
 
-        flash(f'Price alert created successfully. We\'ll notify you at {phone} when prices drop below ${price_threshold}', 'success')
+        if send_verification_email(email, verification_token, alert_details):
+            flash(f"Verification email sent to {email}. Please check your inbox to activate your alert.", 'success')
+        else:
+            flash(f"Alert created bbut failed to send verification email. Please contact support.", 'warning')
+            
         return redirect(url_for('alerts'))
     
     except Exception as e:

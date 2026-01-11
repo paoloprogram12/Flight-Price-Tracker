@@ -36,6 +36,7 @@ Currently working on the automated price checker script that monitors flight pri
 - [ ] **Test email notification system end-to-end**
 - [ ] **Fix bugs in price monitoring workflow**
 - [ ] **Update alerts page layout** (make email/phone both optional instead of one required)
+- [ ] **Implement alert deletion notification email** (notify users when alert is deleted after flight date passes)
 
 ### Medium Priority
 - [ ] Improve error handling and user feedback

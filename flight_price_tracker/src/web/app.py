@@ -219,10 +219,33 @@ def verify_email():
     else:
         return redirect(url_for('alerts'))
     
+# handle unsubscribe from alerts
+@app.route('/unsubscribe')
+def unsubscribe():
+    alert_id = request.args.get('alert_id')
+
+    if not alert_id:
+        flash('Invalid unsubscribe link.', 'error')
+        return redirect(url_for('home'))
+    
+    # import deactivate function
+    from src.core.db import delete_alert
+
+    try:
+        delete_alert(alert_id)
+        return render_template('unsubscribe.html')
+    except Exception as e:
+        print(f"Error unsubscribing: {e}")
+        flash('Error unsubscribing from alert.', 'error')
+        return redirect(url_for('home'))
+
 # TEMPORARY TESTING
 @app.route('/test-verified')
 def test_verified():
     return render_template('email_verified.html')
+@app.route('/test-unsubscribe')
+def test_unsubscribe():
+    return render_template('unsubscribe.html')
 
 # runs the app
 if __name__ == '__main__':

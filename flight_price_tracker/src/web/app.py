@@ -156,11 +156,21 @@ def create_alert_route():
             verification_token=verification_token
         )
 
+        # send verification mail
+        alert_details = {
+            'origin': origin,
+            'destination': destination,
+            'departure_date': departure_date,
+            'return_date': return_date,
+            'price_threshold': price_threshold,
+            'trip_type': trip_type
+        }
+
         if send_verification_email(email, verification_token, alert_details):
             flash(f"Verification email sent to {email}. Please check your inbox to activate your alert.", 'success')
         else:
             flash(f"Alert created bbut failed to send verification email. Please contact support.", 'warning')
-            
+
         return redirect(url_for('alerts'))
     
     except Exception as e:

@@ -1,14 +1,14 @@
 import time
 import schedule
-from datetime import datetime
-from db import get_connection, update_last_checked, delete_alert
+from datetime import datetime, date
+from db import get_connection, update_last_checked, delete_alert, update_price_threshold
 from email import send_price_drop_notification
 import sys
 import os
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from src.api.amadeus import search_flights
+from src.api.travelpayouts import prices_for_dates
 
 def get_verified_active_alerts():
     """Get all active alerts that have verified emails."""
@@ -32,7 +32,6 @@ def check_prices_for_alert(alert):
     """Check if current prices are below threshold for a specific alert."""
     try:
         # Check if departure date has passed
-        from datetime import date
         departure_date = alert['departure_date']
         if isinstance(departure_date, str):
             departure_date = datetime.strptime(departure_date, '%Y-%m-%d').date()
@@ -48,12 +47,12 @@ def check_prices_for_alert(alert):
         one_way = (alert['trip_type'] == 'one-way')
 
         # call amadeus api to get current prices
-        flights = search_flights(
+        flights = prices_for_dates(
             origin=alert['origin'],
             destination=alert['destination'],
             departure_date=str(alert['departure_date']),
             return_date=str(alert['return_date']) if not one_way and alert['return_date'] else None,
-            adults=1
+            limit=10
         )
 
         # check if any flights are below the threshold
@@ -63,13 +62,13 @@ def check_prices_for_alert(alert):
 
                 # send notification email
                 alert_details = {
-                      'alert_id': alert['id'],
-                      'origin': alert['origin'],
-                      'destination': alert['destination'],
-                      'departure_date': str(alert['departure_date']),
-                      'return_date': str(alert['return_date']) if alert['return_date'] else None,
-                      'price_threshold': float(alert['price_threshold']),
-                      'trip_type': alert['trip_type']
+                    'alert_id': alert['id'],
+                    'origin': alert['origin'],
+                    'destination': alert['destination'],
+                    'departure_date': str(alert['departure_date']),
+                    'return_date': str(alert['return_date']) if alert['return_date'] else None,
+                    'price_threshold': float(alert['price_threshold']),
+                    'trip_type': alert['trip_type']
                 }
 
                 flight_details = {
@@ -93,10 +92,10 @@ def check_prices_for_alert(alert):
         else:
             print(f"No prices below ${alert['price_threshold']} found")
             # update last checked timestamp
-            update_last_checked('id')
+            update_last_checked(['id'])
 
     except Exception as e:
-        print(f"Error checking prices for alert {alert['id']: {e}}")
+        print(f"Error checking prices for alert {alert['id']}: {e}")
 
 def check_all_alerts():
     """Main function to check all active alerts."""
@@ -109,6 +108,7 @@ def check_all_alerts():
 
     if not alerts:
         print("No alerts to check")
+        return
 
     for alert in alerts:
         check_prices_for_alert(alert)

@@ -837,11 +837,7 @@ body:has(.results-container) {
 
 /* === HOME PAGE ABOUT SECTION === */
 .about-section {
-    background: linear-gradient(135deg,
-        rgba(28, 49, 94, 0.90) 0%,
-        rgba(41, 128, 185, 0.9) 50%,
-        rgba(32, 98, 212, 0.87) 65%,
-        rgba(30, 100, 160, 0.85) 100%);
+    background: linear-gradient(135deg, #1c315e 0%, #3b49df 50%, #7c3aed 100%);
     padding: 80px 20px 60px 20px;
     margin-top: 150px;
     margin-left: -20px;
@@ -951,6 +947,96 @@ body:has(.results-container) {
 
 .social-links i {
     font-size: 1.3em;
+}
+
+/* === EMAIL VERIFICATION SUCCESS PAGE === */
+body:has(.verification-success) {
+
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.verification-success {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.success-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    color: white;
+    margin: 0 auto 30px;
+}
+
+.verification-success h1 {
+    color: #1c315e;
+    margin: 20px 0 10px;
+    font-size: 32px;
+}
+
+.verification-success h2 {
+    color: #27ae60;
+    margin: 0 0 20px;
+    font-size: 24px;
+    font-weight: normal;
+}
+
+.verification-success p {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.success-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 12px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b49df, #7c3aed);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(59, 73, 223, 0.3);
+}
+
+.btn-secondary {
+  background: white;
+  color: #3b49df;
+  border: 2px solid #3b49df;
+}
+
+.btn-secondary:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
 }
 
 /* RESPONSIVE DESIGN (MOBILE DEVICES) */

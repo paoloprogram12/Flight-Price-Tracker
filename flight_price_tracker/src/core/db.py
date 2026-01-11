@@ -180,7 +180,7 @@ def verify_email_token(token):
             # Find alert with this token
             cursor.execute("""
                 SELECT id FROM price_alerts
-                WHERE verification_token = %
+                WHERE verification_token = %s
                 AND email_verified = FALSE
             """, (token,))
 

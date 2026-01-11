@@ -53,6 +53,9 @@ def send_verification_email(to_email, verification_token, alert_details):
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)
         print(f"Verification email sent to {to_email}")
+        print(f"SendGrid Response Status Code: {response.status_code}")
+        print(f"SendGrid Response Body: {response.body}")
+        print(f"SendGrid Response Headers: {response.headers}")
         return True
     except Exception as e:
         print(f"Error sending verification email: {e}")

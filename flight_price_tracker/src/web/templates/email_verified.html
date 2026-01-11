@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verified - Flight Price Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+          <div class="nav-container">
+              <a href="/" class="nav-brand">✈️ Flight Tracker</a>
+              <div class="nav-links">
+                  <a href="/">Home</a>
+                  <a href="/alerts">Alerts</a>
+                  <a href="/#about">About</a>
+              </div>
+          </div>
+      </nav>
+
+      <div class="verification-success">
+        <div class="success-icon">✓</div>
+        <h1>Congratulations!</h1>
+        <h2>You have verified your email!</h2>
+        <p>Your price alert is now active. We'll notify when flight prices drop below your target price.</p>
+
+        <div class="success-actions">
+            <a href="/alerts" class="btn-primary">Create Another Alert</a>
+            <a href="/" class="btn-secondary">Back to Home</a>
+        </div>
+      </div>
+</body>
+</html>

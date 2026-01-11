@@ -122,8 +122,10 @@ def alerts():
 @app.route('/alerts/create', methods=['POST'])
 def create_alert_route():
     try:
-        phone = request.form.get('phone')
+        print("DEBUG: Form submitted")
+        phone = request.form.get('phone') or None  # Convert empty string to None
         email = request.form.get('email')
+        print(f"DEBUG: Email = {email}, Phone = {phone}")
         origin = request.form.get('origin').upper()
         destination = request.form.get('destination').upper()
         departure_date = request.form.get('departure_date')
@@ -135,15 +137,18 @@ def create_alert_route():
         if trip_type == 'one-way':
             return_date = None
 
-        # validate phone number format (basic check)
-        if not phone.startswith('+'):
+        # validate phone number format (basic check) - only if phone is provided
+        if phone and not phone.startswith('+'):
             flash('Phone number must include country code (e.g., +15551234567)', 'error')
             return redirect(url_for('alerts'))
-        
+
         # Generate verification token
+        print("DEBUG: Generating token")
         verification_token = generate_verification_token()
+        print(f"DEBUG: Token = {verification_token}")
 
         # Save to database
+        print("DEBUG: Saving to database")
         alert_id = create_alert(
             phone=phone,
             origin=origin,
@@ -155,6 +160,7 @@ def create_alert_route():
             email=email,
             verification_token=verification_token
         )
+        print(f"DEBUG: Alert created with ID = {alert_id}")
 
         # send verification mail
         alert_details = {
@@ -166,16 +172,57 @@ def create_alert_route():
             'trip_type': trip_type
         }
 
+        print("DEBUG: Sending verification email")
         if send_verification_email(email, verification_token, alert_details):
+            print("DEBUG: Email sent successfully")
             flash(f"Verification email sent to {email}. Please check your inbox to activate your alert.", 'success')
         else:
+            print("DEBUG: Email failed to send")
             flash(f"Alert created bbut failed to send verification email. Please contact support.", 'warning')
 
         return redirect(url_for('alerts'))
-    
+
     except Exception as e:
+        print(f"DEBUG: Exception caught: {e}")
         flash(f'Error creating alert: {str(e)}', 'error')
         return redirect(url_for('alerts'))
+    
+# handles email verification
+@app.route('/verify-email')
+def verify_email():
+    print("DEBUG: Verify email route hit")
+    token = request.args.get('token')
+    print(f"DEBUG: Token received = {token}")
+
+    if not token:
+        print("DEBUG: No token provided")
+        flash('Invalid verification link.', 'error')
+        return redirect(url_for('home'))
+
+    # Import verify function
+    from src.core.db import verify_email_token # checks if token is valid
+
+    print("DEBUG: Calling verify_email_token")
+    result = verify_email_token(token)
+    print(f"DEBUG: verify_email_token returned {result}")
+
+    if result:
+        print("DEBUG: Verification successful")
+        flash('Email verified successfully! Your price alert is now active.', 'success')
+    else:
+        print("DEBUG: Verification failed")
+        flash('Invalid or expired verification link.', 'error')
+
+    print("DEBUG: Redirecting to alerts")
+    if result:
+        return render_template('email_verified.html')
+    else:
+        return redirect(url_for('alerts'))
+    
+# TEMPORARY TESTING
+@app.route('/test-verified')
+def test_verified():
+    return render_template('email_verified.html')
 
 # runs the app
 if __name__ == '__main__':

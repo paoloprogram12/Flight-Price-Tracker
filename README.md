@@ -31,10 +31,6 @@ Currently working on the automated price checker script that monitors flight pri
 ## TODO / Priorities
 
 ### High Priority
-- [x] ~~Fix/replace Travelpayouts API~~ - **Migrated to Amadeus API (Jan 2026)**
-- [x] ~~Email verification system~~ - **Completed (Jan 2026)**
-- [x] ~~Price drop email notifications~~ - **Template completed (Jan 2026)**
-- [x] ~~Unsubscribe functionality~~ - **Completed (Jan 2026)**
 - [ ] **Complete and test automated price checker script**
 - [ ] **SMS notification integration with Twilio**
 - [ ] **Test email notification system end-to-end**
@@ -42,16 +38,11 @@ Currently working on the automated price checker script that monitors flight pri
 - [ ] **Update alerts page layout** (make email/phone both optional instead of one required)
 
 ### Medium Priority
-- [ ] Integrate real-time currency conversion API
-- [ ] Add flight filters (price range, number of stops, airlines)
 - [ ] Improve error handling and user feedback
 - [ ] Update button color scheme across the site
 
 ### Low Priority
 - [ ] Code readability improvements and refactoring
-- [ ] Add user accounts and saved searches
-- [ ] Price history charts and trends
-- [ ] Mobile app version
 
 ## Setup
 

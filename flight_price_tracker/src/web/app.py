@@ -36,21 +36,31 @@ def home():
     return render_template('index.html')
 
 # handle flight search
-@app.route('/search', methods=['POST'])
+@app.route('/search', methods=['GET', 'POST'])
 def search():
     try:
         # import API function
         from src.api.travelpayouts import prices_for_dates
 
-        # get form data
-        origin = request.form.get('origin').upper()
-        destination = request.form.get('destination').upper()
-        departure_date = request.form.get('departure_date')
-        return_date = request.form.get('return_date')
-        trip_type = request.form.get('trip_type')
-        adults = int(request.form.get('adults', 1))
-        children = int(request.form.get('children', 0))
-        infant = int(request.form.get('infant', 0))
+        # get form data (email first)
+        if request.method == 'GET':
+            origin = request.args.get('origin').upper()
+            destination = request.args.get('destination').upper()
+            departure_date = request.args.get('departure_date')
+            return_date = request.args.get('return_date')
+            trip_type = request.args.get('trip_type')
+            adults = int(request.args.get('adults', 1))
+            children = int(request.args.get('children', 0))
+            infant = int(request.args.get('infant', 0))
+        else:
+            origin = request.form.get('origin').upper()
+            destination = request.form.get('destination').upper()
+            departure_date = request.form.get('departure_date')
+            return_date = request.form.get('return_date')
+            trip_type = request.form.get('trip_type')
+            adults = int(request.form.get('adults', 1))
+            children = int(request.form.get('children', 0))
+            infant = int(request.form.get('infant', 0))
 
         # determine if it's one way
         one_way = (trip_type == 'one-way')

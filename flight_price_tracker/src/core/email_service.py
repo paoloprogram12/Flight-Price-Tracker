@@ -116,3 +116,42 @@ def send_price_drop_notification(to_email, alert_details, flight_details):
     except Exception as e:
         print(f"Error sending price drop notification: {e}")
         return False
+    
+def send_alert_expired_notification(to_email, alert_details):
+    """Send notification that alert has expired due to departure date passing."""
+    try:
+        # Read HTML template
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'web', 'templates', 'alert_expired_email.html')
+        with open(template_path, 'r') as f:
+            html_template = f.read()
+
+        # handle return date HTML
+        return_date_html = ""
+        if alert_details.get('return_date'):
+            return_date_html = f"<p style='margin: 8px 0;'><strong>Return:</strong> {alert_details.get('return_date')}</p>"
+
+        # replace placeholders
+        html_content = html_template.format(
+            origin=alert_details['origin'],
+            destination=alert_details['destination'],
+            departure_date=alert_details['departure_date'],
+            return_date_html=return_date_html,
+            price_threshold=alert_details['price_threshold'],
+            trip_type=alert_details.get('trip_type', '').replace('-', ' ').title(),
+            base_url=BASE_URL
+        )
+
+        message = Mail(
+            from_email=SENDER_EMAIL,
+            to_emails=to_email,
+            subject=f'Price Alert Expired - {alert_details["origin"]} → {alert_details['destination']}',
+            html_content=html_content
+        )
+
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        print(f"Alert expired notification sent to {to_email}")
+        return True
+    except Exception as e:
+        print(f"Error sending alert expired notification: {e}")
+        return False

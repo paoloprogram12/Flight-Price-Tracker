@@ -2,7 +2,7 @@ import time
 import schedule
 from datetime import datetime, date
 from db import get_connection, update_last_checked, delete_alert, update_price_threshold
-from email_service import send_price_drop_notification
+from email_service import send_price_drop_notification, send_alert_expired_notification
 import sys
 import os
 
@@ -38,6 +38,18 @@ def check_prices_for_alert(alert):
 
         if departure_date < date.today():
             print(f"Alert ID {alert['id']} departure date passed. Deleting alert.")
+
+            # send expired notification
+            alert_details = {
+                'origin': alert['origin'],
+                'destination': alert['destination'],
+                'departure_date': str(alert['destination']),
+                'return_date': str(alert['return_date']) if alert['return_date'] else None,
+                'price_threshold': float(alert['price_threshold']),
+                'trip_type': alert['trip_type']
+            }
+
+            send_alert_expired_notification(alert['email'], alert_details)
             delete_alert(alert['id'])
             return
         

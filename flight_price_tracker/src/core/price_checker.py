@@ -2,7 +2,7 @@ import time
 import schedule
 from datetime import datetime, date
 from db import get_connection, update_last_checked, delete_alert, update_price_threshold
-from email import send_price_drop_notification
+from email_service import send_price_drop_notification
 import sys
 import os
 
@@ -50,8 +50,9 @@ def check_prices_for_alert(alert):
         flights = prices_for_dates(
             origin=alert['origin'],
             destination=alert['destination'],
-            departure_date=str(alert['departure_date']),
-            return_date=str(alert['return_date']) if not one_way and alert['return_date'] else None,
+            departure_at=str(alert['departure_date']),
+            return_at=str(alert['return_date']) if not one_way and alert['return_date'] else None,
+            one_way=one_way,
             limit=10
         )
 

@@ -24,7 +24,7 @@ with open(airlines_path) as f:
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))) # shows where to find db.py
 
 from src.core.db import create_alert, get_active_alerts
-from src.core.email import generate_verification_token, send_verification_email
+from src.core.email_service import generate_verification_token, send_verification_email
 
 # creates app
 app = Flask(__name__)

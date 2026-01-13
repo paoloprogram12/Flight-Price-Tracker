@@ -239,10 +239,25 @@ def unsubscribe():
         return redirect(url_for('home'))
     
     # import deactivate function
-    from src.core.db import delete_alert
+    from src.core.db import delete_alert, get_alert_by_id
+    from src.core.email_service import send_deleted_alert_notification
 
     try:
+        alert = get_alert_by_id(alert_id)
+
+        alert_details = {
+            'origin': alert['origin'],
+            'destination': alert['destination'],
+            'departure_date': str(alert['departure_date']),
+            'return_date': str(alert['return_date']) if alert['return_date'] else None,
+            'price_threshold': float(alert['price_threshold']),
+            'trip_type': alert['trip_type'],
+        }
+
+        user = alert['email']
+        send_deleted_alert_notification(user, alert_details)
         delete_alert(alert_id)
+
         return render_template('unsubscribe.html')
     except Exception as e:
         print(f"Error unsubscribing: {e}")

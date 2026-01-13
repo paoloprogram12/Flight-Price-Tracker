@@ -6,12 +6,17 @@ A web application to track and compare flight prices, with automated email notif
 
 - **Flight Search**: Search for flights by origin, destination, and dates using Amadeus API
 - **Airport Autocomplete**: Search airports by code, city, state, or country
-- **Email Verification**: Secure email verification system using SendGrid
-- **Price Alerts**: Automated email notifications when flight prices drop below your threshold
+- **Complete Email Notification System**:
+  - Secure email verification with SendGrid
+  - Price drop alerts when flights fall below your threshold
+  - Alert activation confirmation emails
+  - Alert deleted confirmation emails
+  - Alert expired notifications
 - **Smart Notifications**: Only notifies when prices drop even lower than previous notifications
-- **Unsubscribe System**: Easy one-click unsubscribe from price alerts
+- **Automated Price Monitoring**: Background script checks prices every 6 hours
+- **Unsubscribe System**: Easy one-click unsubscribe from price alerts with confirmation email
 - **Trip Types**: Support for both one-way and round-trip flights
-- **Responsive Design**: Modern gradient theme with clean UI
+- **Responsive Design**: Modern gradient theme with clean UI across all pages and emails
 
 ## Tech Stack
 
@@ -26,17 +31,21 @@ A web application to track and compare flight prices, with automated email notif
 
 ## Current Status
 
-Currently working on the automated price checker script that monitors flight prices and sends email notifications. The email verification system is fully functional.
+✅ **Email notification system is 100% complete!** Including:
+- Email verification system
+- Price drop notifications
+- Alert activated confirmations
+- Alert deleted confirmations
+- Alert expired notifications
+- Automated price checker running every 6 hours
+
+🚀 **Currently working on**: SMS notification integration with Twilio
 
 ## TODO / Priorities
 
 ### High Priority
-- [ ] **Complete and test automated price checker script**
-- [ ] **SMS notification integration with Twilio**
-- [ ] **Test email notification system end-to-end**
-- [ ] **Fix bugs in price monitoring workflow**
+- [ ] **SMS notification integration with Twilio** - Main priority now
 - [ ] **Update alerts page layout** (make email/phone both optional instead of one required)
-- [ ] **Implement alert deletion notification email** (notify users when alert is deleted after flight date passes)
 
 ### Medium Priority
 - [ ] Improve error handling and user feedback
@@ -138,6 +147,14 @@ Open your browser and go to `http://localhost:5000`
 7. **User can unsubscribe** anytime via link in notification emails
 
 ## Important Notes
+
+### ⚠️ Gmail Delivery Issue
+**IMPORTANT**: Emails sent to Gmail addresses currently do not work because the app does not have a custom domain. Gmail's spam filters block emails from non-domain senders via SendGrid.
+
+**Workarounds for testing**:
+- Use a non-Gmail email address (Yahoo, Outlook, etc.)
+- Check SendGrid activity logs to confirm emails are being sent
+- Production deployment with a custom domain will resolve this issue
 
 ### Email Verification Links
 When testing locally, if clicking the verification link in the email doesn't work, try manually changing the URL from `http://localhost:5000` to `http://127.0.0.1:5000` in your browser. This resolves some browser caching issues during development.

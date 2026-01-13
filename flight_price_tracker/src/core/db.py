@@ -146,23 +146,6 @@ def update_price_threshold(alert_id, new_threshold):
     finally:
         connection.close()
 
-def deactivate_alert(alert_id):
-      """Deactivate an alert (set is_active to False)."""
-      connection = get_connection()
-      try:
-          with connection.cursor() as cursor:
-              cursor.execute("""
-                  UPDATE price_alerts 
-                  SET is_active = FALSE 
-                  WHERE id = %s
-              """, (alert_id,))
-              connection.commit()
-      except pymysql.Error as e:
-          print(f"Error deactivating alert: {e}")
-          raise
-      finally:
-          connection.close()
-
 def delete_alert(alert_id):
     """Permanently delete an alert from the database."""
     connection = get_connection()

@@ -155,3 +155,42 @@ def send_alert_expired_notification(to_email, alert_details):
     except Exception as e:
         print(f"Error sending alert expired notification: {e}")
         return False
+    
+def send_deleted_alert_notification(to_email, alert_details):
+    """Send notifications that alert has been deleted from the database"""
+    try:
+        # read HTML template 
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'web', 'templates', 'alert_deleted_html')
+        with open(template_path, 'r') as f:
+            html_template = f.read()
+
+        # handles the return date html
+        return_date_html = ""
+        if alert_details.get('return_date'):
+            return_date_html = f"<p style='margin: 8px 0;'><strong>Return:</strong> {alert_details.get('return_date')}</p>"
+        
+        # replace placeholders
+        html_content = html_template.format(
+            origin=alert_details['origin'],
+            destination=alert_details['destination'],
+            departure_date=alert_details['departure_date'],
+            return_date_html=return_date_html,
+            price_threshold=alert_details['price_threshold'],
+            trip_type=alert_details.get('trip_type', '').replace('-', ' ').title(),
+            base_url=BASE_URL
+        )
+
+        message = Mail(
+            from_email=SENDER_EMAIL,
+            to_email=to_email,
+            subject=f"Alert Deleted - {alert_details['origin']} → {alert_details['destination']}",
+            html_content=html_content
+        )
+
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        respone = sg.send(message)
+        print(f"Alert deleted confirmation sent to {to_email}")
+        return True
+    except Exception as e:
+        print(f"Error sending alert deleted notification: {e}")
+        return False

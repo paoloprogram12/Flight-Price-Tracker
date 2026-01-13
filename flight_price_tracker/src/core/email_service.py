@@ -159,8 +159,8 @@ def send_alert_expired_notification(to_email, alert_details):
 def send_deleted_alert_notification(to_email, alert_details):
     """Send notifications that alert has been deleted from the database"""
     try:
-        # read HTML template 
-        template_path = os.path.join(os.path.dirname(__file__), '..', 'web', 'templates', 'alert_deleted_html')
+        # read HTML template
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'web', 'templates', 'alert_deleted_email.html')
         with open(template_path, 'r') as f:
             html_template = f.read()
 
@@ -168,7 +168,7 @@ def send_deleted_alert_notification(to_email, alert_details):
         return_date_html = ""
         if alert_details.get('return_date'):
             return_date_html = f"<p style='margin: 8px 0;'><strong>Return:</strong> {alert_details.get('return_date')}</p>"
-        
+
         # replace placeholders
         html_content = html_template.format(
             origin=alert_details['origin'],
@@ -182,15 +182,65 @@ def send_deleted_alert_notification(to_email, alert_details):
 
         message = Mail(
             from_email=SENDER_EMAIL,
-            to_email=to_email,
+            to_emails=to_email,
             subject=f"Alert Deleted - {alert_details['origin']} → {alert_details['destination']}",
             html_content=html_content
         )
 
         sg = SendGridAPIClient(SENDGRID_API_KEY)
-        respone = sg.send(message)
+        response = sg.send(message)
         print(f"Alert deleted confirmation sent to {to_email}")
         return True
     except Exception as e:
         print(f"Error sending alert deleted notification: {e}")
+        return False
+    
+def send_alert_activated_notification(to_email, alert_details):
+    """Send notification that alert has been activated."""
+    try:
+        # Build search results URL
+        search_params = f"origin={alert_details['origin']}&destination={alert_details['destination']}"
+        search_params += f"&departure_date={alert_details['departure_date']}"
+        if alert_details.get('return_date'):
+            search_params += f"&return_date={alert_details['return_date']}"
+        search_params += f"&trip_type={alert_details['trip_type']}"
+
+        results_link = f"{BASE_URL}/search?{search_params}"
+        unsubscribe_link = f"{BASE_URL}/unsubscribe?alert_id={alert_details['alert_id']}"
+
+        # Read HTML template
+        template_path = os.path.join(os.path.dirname(__file__), '..', 'web', 'templates', 'alert_activated_email.html')
+        with open(template_path, 'r') as f:
+            html_template = f.read()
+
+        # handle return date HTML
+        return_date_html = ""
+        if alert_details.get('return_date'):
+            return_date_html = f"<p style='margin: 8px 0;'><strong>Return:</strong> {alert_details.get('return_date')}</p>"
+
+        # replace placeholders
+        html_content = html_template.format(
+            origin=alert_details['origin'],
+            destination=alert_details['destination'],
+            departure_date=alert_details['departure_date'],
+            return_date_html=return_date_html,
+            price_threshold=alert_details['price_threshold'],
+            trip_type=alert_details.get('trip_type', '').replace('-', ' ').title(),
+            results_link=results_link,
+            unsubscribe_link=unsubscribe_link
+        )
+
+        message = Mail(
+            from_email=SENDER_EMAIL,
+            to_emails=to_email,
+            subject=f'Alert Activated - {alert_details["origin"]} → {alert_details["destination"]}',
+            html_content=html_content
+        )
+
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        print(f"Alert activated notification sent to {to_email}")
+        return True
+    except Exception as e:
+        print(f"Error sending alert activated notification: {e}")
         return False

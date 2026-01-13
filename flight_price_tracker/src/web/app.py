@@ -210,7 +210,8 @@ def verify_email():
         return redirect(url_for('home'))
 
     # Import verify function
-    from src.core.db import verify_email_token # checks if token is valid
+    from src.core.db import verify_email_token, get_alert_by_id, get_connection # checks if token is valid
+    from src.core.email_service import send_alert_activated_notification
 
     print("DEBUG: Calling verify_email_token")
     result = verify_email_token(token)
@@ -218,6 +219,38 @@ def verify_email():
 
     if result:
         print("DEBUG: Verification successful")
+        print("DEBUG: About to fetch alert with token")
+
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT id FROM price_alerts WHERE verification_token = %s", (token,))
+        alert = cursor.fetchone()
+        alert_id = alert['id']
+        connection.close()
+
+        print(f"DEBUG: Found alert_id = {alert_id}")
+
+        alert = get_alert_by_id(alert_id)
+
+        alert_details = {
+            'alert_id': alert_id,
+            'origin': alert['origin'],
+            'destination': alert['destination'],
+            'departure_date': str(alert['departure_date']),
+            'return_date': str(alert['return_date']) if alert['return_date'] else None,
+            'price_threshold': float(alert['price_threshold']),
+            'trip_type': alert['trip_type'],
+        }
+
+        user_email = alert['email']
+
+        print(f"DEBUG: Alert details = {alert_details}")
+        print(f"DEBUG: Sending activation email to {user_email}")
+
+        send_alert_activated_notification(user_email, alert_details)
+
+        print("DEBUG: After sending activation email")
+
         flash('Email verified successfully! Your price alert is now active.', 'success')
     else:
         print("DEBUG: Verification failed")

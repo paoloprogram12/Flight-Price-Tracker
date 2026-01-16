@@ -46,6 +46,7 @@ def init_db():
                            email_verified BOOLEAN DEFAULT FALSE,
                            phone_verified BOOLEAN DEFAULT FALSE,
                            verification_token VARCHAR(255),
+                           phone_verification_code VARCHAR(6),
                            token_created_at TIMESTAMP NULL,
                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                            last_checked TIMESTAMP NULL
@@ -59,7 +60,7 @@ def init_db():
     finally:
         connection.close()
 
-def create_alert(phone, origin, destination, departure_date, return_date, price_threshold, trip_type, email=None, verification_token=None):
+def create_alert(phone, origin, destination, departure_date, return_date, price_threshold, trip_type, email=None, verification_token=None, phone_verification_code=None):
     """
       Create a new price alert.
       
@@ -82,11 +83,11 @@ def create_alert(phone, origin, destination, departure_date, return_date, price_
             sql = """
                 INSERT INTO price_alerts
                 (phone, email, origin, destination, departure_date, return_date,
-                price_threshold, trip_type, is_active, verification_token, token_created_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                price_threshold, trip_type, is_active, verification_token, phone_verification_code, token_created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(sql, (phone, email, origin, destination, departure_date, return_date,
-                                price_threshold, trip_type, True, verification_token, datetime.now() if verification_token else None))
+                                price_threshold, trip_type, True, verification_token, phone_verification_code, datetime.now() if verification_token else None))
             connection.commit()
             return cursor.lastrowid
     except pymysql.Error as e:

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Phone Number - Flight Price Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+          <div class="nav-container">
+              <a href="/" class="nav-brand">✈️ Flight Tracker</a>
+              <div class="nav-links">
+                  <a href="/">Home</a>
+                  <a href="/alerts">Alerts</a>
+                  <a href="/#about">About</a>
+              </div>
+          </div>
+      </nav>
+
+    <div class="verification-container">
+        <div class="verification-card">
+            <div class="verification-header">
+                <h1>📱 Verify Your Phone Number</h1>
+                <p>We sent a 6-digit code to {{ phone }}</p>
+            </div>
+
+            <form action="{{ url_for('verify_phone_submit') }}" method="POST" class="verification-form">
+                <input type="hidden" name="alert_id" value="{{ alert_id }}">
+
+                <div class="form-group">
+                    <label for="code">Enter Verification Code</label>
+                    <input 
+                        type="text"
+                        id="code"
+                        name="code"
+                        placeholder="000000"
+                        maxlength="6"
+                        pattern="\d{6}"
+                        required
+                        autocomplete="off"
+                        autofocus
+                    >
+                </div>
+
+                <button type="submit" class="btn-primary">Verify Phone Number</button>
+            </form>
+
+            <div class="info-box">
+                <p>Didn't receive the code? Check your phone or contact support.</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</body>
+</html>

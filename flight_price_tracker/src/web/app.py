@@ -131,6 +131,9 @@ def alerts():
 # handle alert form submission
 @app.route('/alerts/create', methods=['POST'])
 def create_alert_route():
+
+    from src.core.sms_service import generate_verification_code, send_verification_sms
+
     try:
         print("DEBUG: Form submitted")
         phone = request.form.get('phone') or None  # Convert empty string to None
@@ -152,10 +155,16 @@ def create_alert_route():
             flash('Phone number must include country code (e.g., +15551234567)', 'error')
             return redirect(url_for('alerts'))
 
-        # Generate verification token
+        # Generate verification token for email
         print("DEBUG: Generating token")
         verification_token = generate_verification_token()
         print(f"DEBUG: Token = {verification_token}")
+
+        # generate verification code for phone
+        phone_verification_code = None
+        if phone:
+            phone_verification_code = generate_verification_code()
+            print(f"DEBUG: Phone verification code = {phone_verification_code}")
 
         # Save to database
         print("DEBUG: Saving to database")
@@ -168,27 +177,43 @@ def create_alert_route():
             price_threshold=price_threshold,
             trip_type=trip_type,
             email=email,
-            verification_token=verification_token
+            verification_token=verification_token,
+            phone_verification_code=phone_verification_code
         )
         print(f"DEBUG: Alert created with ID = {alert_id}")
 
         # send verification mail
-        alert_details = {
-            'origin': origin,
-            'destination': destination,
-            'departure_date': departure_date,
-            'return_date': return_date,
-            'price_threshold': price_threshold,
-            'trip_type': trip_type
-        }
+        if email:
+            alert_details = {
+                'origin': origin,
+                'destination': destination,
+                'departure_date': departure_date,
+                'return_date': return_date,
+                'price_threshold': price_threshold,
+                'trip_type': trip_type
+            }
 
-        print("DEBUG: Sending verification email")
-        if send_verification_email(email, verification_token, alert_details):
-            print("DEBUG: Email sent successfully")
+            print("DEBUG: Sending verification email")
+            if send_verification_email(email, verification_token, alert_details):
+                print("DEBUG: Email sent successfully")
+                flash(f"Verification email sent to {email}. Please check your inbox to activate your alert.", 'success')
+            else:
+                print("DEBUG: Email failed to send")
+                flash(f"Alert created bbut failed to send verification email. Please contact support.", 'warning')
+
+        # send phone verification
+        if phone:
+            print("DEBUG: Sending verification SMS")
+            if send_verification_sms(phone, phone_verification_code):
+                print("DEBUG: SMS sent successfully")
+                return redirect(url_for('verify_phone_submit', alert_id=alert_id, phone=phone))
+            else:
+                print("DEBUG: SMS failed to send")
+                flash(f"Alert created but failed to send verification SMS> Please contact support.", 'warning')
+
+        # if email and not phone:
+        if email and not phone:
             flash(f"Verification email sent to {email}. Please check your inbox to activate your alert.", 'success')
-        else:
-            print("DEBUG: Email failed to send")
-            flash(f"Alert created bbut failed to send verification email. Please contact support.", 'warning')
 
         return redirect(url_for('alerts'))
 
@@ -296,6 +321,37 @@ def unsubscribe():
         print(f"Error unsubscribing: {e}")
         flash('Error unsubscribing from alert.', 'error')
         return redirect(url_for('home'))
+    
+# handles phone verification
+@app.route('verify-phone', methods=['GET', 'POST'])
+def verify_phone_submit():
+    if request.method == 'GET':
+        # displays verification form
+        alert_id = request.args.get('alert_id')
+        phone = request.args.get('phone')
+
+        if not alert_id or not phone:
+            flash('Invalid verification link.', 'error')
+            return redirect(url_for('home'))
+        
+        return render_template('verify_phone.html', alert_id=alert_id, phone=phone)
+    
+    else : # POST method
+        # validates the code
+        alert_id = request.form.get('alert_id')
+        code = request.form.get('code')
+
+        from src.core.db import verify_phone_code
+
+        if verify_phone_code(alert_id, code):
+            flash('Phone verified successfully! Your price alert is now active.', 'success')
+            return render_template('phone_verified.html')
+        else:
+            flash('Invalid verification code. Please try again.', 'error')
+            # Get phone number to redisplay the form
+            from src.core.db import get_alert_by_id
+            alert = get_alert_by_id(alert_id)
+            return render_template('verify_phone.html', alert_id=alert_id, phone=alert['phone'])
 
 # TEMPORARY TESTING
 @app.route('/test-verified')
@@ -304,9 +360,9 @@ def test_verified():
 @app.route('/test-unsubscribe')
 def test_unsubscribe():
     return render_template('unsubscribe.html')
-@app.route('test-phone-verify')
+@app.route('/test-phone-verify')
 def test_phone_verify():
-    return render_template('verify_phone.html')
+    return render_template('verify_phone.html', phone='+15551234567', alert_id=1)
 
 # runs the app
 if __name__ == '__main__':

@@ -1039,6 +1039,41 @@ body:has(.verification-success) {
   transform: translateY(-2px);
 }
 
+/* === PHONE VERIFICATION PAGE === */
+.verification-form {
+    margin: 30px 0;
+}
+
+.verification-form input[type="text"] {
+    width: 100%;
+    padding: 15px;
+    font-size: 24px;
+    text-align: center;
+    letter-spacing: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.verification-form input[type="text"]:focus {
+    outline: none;
+    border-color: #3b49df;
+}
+
+.info-box {
+    margin-top: 20px;
+    padding: 15px;
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    border-radius: 4px;
+}
+
+.info-box p {
+    margin: 0;
+    font-size: 13px;
+    color: #1565c0;
+}
+
 /* === UNSUBSCRIBE PAGE === */
 body:has(.unsubscribe-container) {
     min-height: 100vh;

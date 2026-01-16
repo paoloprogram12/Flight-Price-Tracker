@@ -304,6 +304,9 @@ def test_verified():
 @app.route('/test-unsubscribe')
 def test_unsubscribe():
     return render_template('unsubscribe.html')
+@app.route('test-phone-verify')
+def test_phone_verify():
+    return render_template('verify_phone.html')
 
 # runs the app
 if __name__ == '__main__':

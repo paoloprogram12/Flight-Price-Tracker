@@ -3,6 +3,8 @@ import random
 from twilio.rest import Client
 from dotenv import load_dotenv
 
+BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
+
 load_dotenv()
 
 # Twilio config

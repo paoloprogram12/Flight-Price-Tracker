@@ -355,6 +355,11 @@ def verify_phone_submit():
             from src.core.db import get_alert_by_id
             from src.core.sms_service import send_alert_activated_sms
 
+            print("DEBUG: Phone verified successfully")
+
+            alert = get_alert_by_id(alert_id)
+            print(f"DEBUG: Retrieved alert = {alert}")
+
             alert = get_alert_by_id(alert_id)
             alert_details = {
                 'alert_id': alert_id,
@@ -366,7 +371,9 @@ def verify_phone_submit():
                 'trip_type': alert['trip_type']
             }
 
+            print(f"DEBUG: About to send activation SMS to {alert['phone']}")
             send_alert_activated_sms(alert['phone'], alert_details)
+            print(f"DEBUG: After sending activation SMS")
 
             flash('Phone verified successfully! Your price alert is now active.', 'success')
             return render_template('phone_verified.html')

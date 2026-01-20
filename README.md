@@ -54,10 +54,12 @@ A web application to track and compare flight prices, with automated email and S
 
 ✅ **Automated price checker running every 6 hours**
 
+✅ **Alerts page updated** - Users can now choose email only, phone only, or both for notifications
+
 ## TODO / Priorities
 
 ### High Priority
-- [ ] **Update alerts page layout** (make email/phone both optional instead of one required)
+- ✅ All high priority tasks completed!
 
 ### Medium Priority
 - [ ] Improve error handling and user feedback

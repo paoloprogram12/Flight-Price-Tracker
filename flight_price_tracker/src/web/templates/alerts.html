@@ -79,16 +79,34 @@
                     </div>
                 </div>
 
+                <!-- CONTACT METHOD -->
                 <div class="form-group">
-                    <label for="phone">Phone Number (for SMS alerts):</label>
-                    <input type="tel" id="phone" name="phone" placeholder="+15551234567">
-                    <small>Format: +1XXXXXXXXXX (include country code)</small>
+                    <label>How would you like to receive alerts?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="contact_method" value="email" checked>
+                            <span>email</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="contact_method" value="phone">
+                            <span>Phone Number</span>
+                        </label>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="email">Email (optional, for future use):</label>
-                    <input type="email" name="email" id="email" placeholder="your@email.com">
-                </div>
+                <!-- EMAIL INPUT -->
+                 <div class="form-group" id="email-input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com">
+                 </div>
+
+                 <!-- PHONE INPUT -->
+                  <div class="form-group" id="phone-input-group" style="display: none;">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+15551234567">
+                    <small>Include country code (e.g., +1 for US)</small>
+                  </div>
+
 
                 <button type="submit">Create Alert</button>
             </form>

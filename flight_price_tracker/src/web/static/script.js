@@ -251,3 +251,39 @@ document.querySelectorAll('a[href="/#about"]').forEach(link => {
         }
     });
 });
+
+// used for creating toggling alerts in alerts.html
+document.addEventListener('DOMContentLoaded', function() {
+    // get radio buttons and input groups
+    const emailRadio = document.querySelector('input[value="email"]');
+    const phoneRadio = document.querySelector('input[value="phone"]');
+    const emailGroup = document.getElementById('email-input-group');
+    const phoneGroup = document.getElementById('phone-input-group');
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+
+    // only run if elements exist (alerts page)
+    if (!emailRadio || !phoneRadio) { return; }
+
+    //function to toggle visibility
+    function toggleContactMethod() {
+        if (emailRadio.checked) {
+            emailGroup.style.display = 'block';
+            phoneGroup.style.display = 'none';
+            emailInput.required = true;
+            phoneInput.required = false;
+            phoneInput.value = '';
+        } else {
+            emailGroup.style.display = 'none';
+            phoneGroup.style.display = 'block';
+            emailInput.required = false;
+            phoneInput.required = true;
+            emailInput.value = '';
+        }
+    }
+
+    emailRadio.addEventListener('change', toggleContactMethod);
+    phoneRadio.addEventListener('change', toggleContactMethod);
+
+    toggleContactMethod();
+});

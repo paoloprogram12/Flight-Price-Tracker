@@ -1133,6 +1133,37 @@ body:has(.unsubscribe-container) {
     flex-wrap: wrap;
 }
 
+/* ALERTS PAGE RADIO SELECTION */
+.radio-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px 15px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.radio-option:hover {
+    border-color: #3b49df;
+    background-color: #f0f4ff;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.radio-option input[type="radio"]:checked + span {
+    color: #3b49df;
+    font-weight: bold;
+}
+
+.radio-option:has(input:checked) {
+    border-color: #3b49df;
+    background-color: #f0f4ff;
+}
+
 /* RESPONSIVE DESIGN (MOBILE DEVICES) */
 @media (max-width: 900px) {
     .results-search-bar {

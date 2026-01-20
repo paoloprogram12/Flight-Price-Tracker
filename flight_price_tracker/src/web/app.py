@@ -138,6 +138,13 @@ def create_alert_route():
         print("DEBUG: Form submitted")
         phone = request.form.get('phone') or None  # Convert empty string to None
         email = request.form.get('email')
+
+        # chekcs if email or phone number input is empty
+        if not email and not phone:
+            flash('Please provide either an email address or phone number.', 'error')
+            return redirect(url_for('alerts'))
+
+
         print(f"DEBUG: Email = {email}, Phone = {phone}")
         origin = request.form.get('origin').upper()
         destination = request.form.get('destination').upper()

@@ -219,6 +219,46 @@ def verify_email_token(token):
     finally:
         connection.close()
 
+def verify_phone_code(alert_id, code):
+    """
+    Verify a phone using the verification code.
+    
+    Args:
+        alert_id: The alert ID
+        code: The 6-digit verification code
+        
+    Returns: True if verification successful, False otherwise
+    """
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            # find alert with this ID and code
+            cursor.execute("""
+                SELECT id FROM price_alerts
+                WHERE id = %s
+                AND phone_verification_code = %s
+                AND phone_verified = FALSE
+            """, (alert_id, code))
+
+            alert = cursor.fetchone()
+            if not alert:
+                return False
+            
+            # mark phone as verified
+            cursor.execute("""
+                UPDATE price_alerts
+                SET phone_verified = TRUE
+                WHERE id = %s
+            """, (alert_id,))
+
+            connection.commit()
+            return True
+    except pymysql.Error as e:
+        print(f"Error verifying phone code: {e}")
+        return False
+    finally:
+        connection.close()
+
 # initialize db when module is imported
 if __name__ == "__main__":
     init_db()

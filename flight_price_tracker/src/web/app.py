@@ -330,7 +330,7 @@ def unsubscribe():
         return redirect(url_for('home'))
     
 # handles phone verification
-@app.route('verify-phone', methods=['GET', 'POST'])
+@app.route('/verify-phone', methods=['GET', 'POST'])
 def verify_phone_submit():
     if request.method == 'GET':
         # displays verification form
@@ -386,7 +386,7 @@ def test_unsubscribe():
     return render_template('unsubscribe.html')
 @app.route('/test-phone-verify')
 def test_phone_verify():
-    return render_template('verify_phone.html', phone='+15551234567', alert_id=1)
+    return render_template('verify_phone.html', phone='+15551234567', alert_id=123)
 
 # runs the app
 if __name__ == '__main__':

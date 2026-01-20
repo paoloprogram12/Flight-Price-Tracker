@@ -18,12 +18,10 @@
           </div>
       </nav>
 
-    <div class="verification-container">
-        <div class="verification-card">
-            <div class="verification-header">
+    <div class="verification-success">
+        <div class="success-card">
                 <h1>📱 Verify Your Phone Number</h1>
                 <p>We sent a 6-digit code to {{ phone }}</p>
-            </div>
 
             <form action="{{ url_for('verify_phone_submit') }}" method="POST" class="verification-form">
                 <input type="hidden" name="alert_id" value="{{ alert_id }}">

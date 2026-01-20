@@ -52,19 +52,9 @@ def send_price_drop_sms(to_phone, alert_details, flight_details):
         # unsubscribe link
         unsubscribe_link = f"{BASE_URL}/unsubscribe?alert_id={alert_details['alert_id']}"
 
-        # builds message with return date
-        trip_info = f"Depart: {alert_details['departure_date']}"
-        if alert_details.get('return_date'):
-            trip_info += f"\nReturn: {alert_details['return_date']}"
-
         message_body = (
-            f"✈️ PRICE DROP ALERT!\n\n"
-            f"{alert_details['origin']} → {alert_details['destination']}\n"
-            f"{trip_info}\n"
-            f"New Price: ${flight_details['price']}\n"
-            f"You save: ${savings:.2f}\n\n"
-            f"View flights: {results_link}\n\n"
-            f"Unsubscribe: {unsubscribe_link}\n"
+            f"PRICE DROP!\n"
+            f"{alert_details['origin']} → {alert_details['destination']} ${flight_details['price']} (Save ${savings:.0f})\n"
         )
 
         message = client.messages.create(
@@ -88,18 +78,11 @@ def send_alert_activated_sms(to_phone, alert_details):
         # build unsubscribe link
         unsubscribe_link = f"{BASE_URL}/unsubscribe?alert_id={alert_details['alert_id']}"
 
-        # build trip info w/ return date
-        trip_info = f"Depart: {alert_details['departure_date']}"
-        if alert_details.get('return_date'):
-            trip_info += f"\nReturn: {alert_details['return_date']}"
-
         message_body = (
-            f"✅ Your Flight Price Alert is Active!\n\n"
+            f"Alert Active!\n"
             f"{alert_details['origin']} → {alert_details['destination']}\n"
-            f"{trip_info}\n"
-            f"Watching for prices below ${alert_details['price_threshold']}\n\n"
-            f"We'll notify you when we find a deal!\n\n"
-            f"Unsubscribe: {unsubscribe_link}\n"
+            f"Watching prices under ${alert_details['price_threshold']}\n"
+            f"Stop: {unsubscribe_link}"
         )
 
         message = client.messages.create(
@@ -119,17 +102,10 @@ def send_alert_deleted_sms(to_phone, alert_details):
     try:
         client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-        # trip info
-        trip_info = f"Depart: {alert_details['departure_date']}"
-        if alert_details.get('return_date'):
-            trip_info += f"\n Return: {alert_details['return_date']}"
-
         message_body = (
-            f"🗑️ Alert Deleted\n\n"
+            f"Alert Deleted\n"
             f"{alert_details['origin']} → {alert_details['destination']}\n"
-            f"{trip_info}\n\n"
-            f"You've been unsubscribed and your info has been removed.\n\n"
-            f"Thanks for using Flight Price Tracker!"
+            f"Unsubscribed - info removed.\n"
         )
         message = client.messages.create(
             body=message_body,
@@ -148,17 +124,10 @@ def send_alert_expired_sms(to_phone, alert_details):
     try:
         client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-        # trip info
-        trip_info = f"Depart: {alert_details['departure_date']}"
-        if alert_details.get('return_date'):
-            trip_info += f"\n Return: {alert_details['return_date']}"
-
         message_body = (
-            f"⏰ Alert Expired\n\n"
+            f"Alert Expired\n"
             f"{alert_details['origin']} → {alert_details['destination']}\n"
-            f"{trip_info}\n\n"
-            f"Your alert has been removed because the departure date has passed.\n\n"
-            f"Create a new alert anytime!"
+            f"Alert removed - departure date passed.\n"
         )
 
         message = client.messages.create(

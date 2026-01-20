@@ -312,8 +312,15 @@ def unsubscribe():
             'trip_type': alert['trip_type'],
         }
 
-        user = alert['email']
-        send_deleted_alert_notification(user, alert_details)
+        # Send email if email exists
+        if alert['email']:
+            send_deleted_alert_notification(alert['email'], alert_details)
+
+        # Send SMS if phone exists
+        if alert['phone']:
+            from src.core.sms_service import send_alert_deleted_sms
+            send_alert_deleted_sms(alert['phone'], alert_details)
+
         delete_alert(alert_id)
 
         return render_template('unsubscribe.html')
@@ -344,6 +351,23 @@ def verify_phone_submit():
         from src.core.db import verify_phone_code
 
         if verify_phone_code(alert_id, code):
+            # get alert details to send activation SMS
+            from src.core.db import get_alert_by_id
+            from src.core.sms_service import send_alert_activated_sms
+
+            alert = get_alert_by_id(alert_id)
+            alert_details = {
+                'alert_id': alert_id,
+                'origin': alert['origin'],
+                'destination': alert['destination'],
+                'departure_date': str(alert['departure_date']),
+                'return_date': str(alert['return_date']) if alert['return_date'] else None,
+                'price_threshold': float(alert['price_threshold']),
+                'trip_type': alert['trip_type']
+            }
+
+            send_alert_activated_sms(alert['phone'], alert_details)
+
             flash('Phone verified successfully! Your price alert is now active.', 'success')
             return render_template('phone_verified.html')
         else:

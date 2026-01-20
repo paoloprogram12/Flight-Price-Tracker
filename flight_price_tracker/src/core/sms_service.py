@@ -3,7 +3,6 @@ import random
 from twilio.rest import Client
 from dotenv import load_dotenv
 
-BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
 
 load_dotenv()
 
@@ -11,6 +10,7 @@ load_dotenv()
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
 
 def generate_verification_code():
     """Generate a random 6-digit verification code."""
@@ -63,6 +63,7 @@ def send_price_drop_sms(to_phone, alert_details, flight_details):
             f"{trip_info}\n"
             f"New Price: ${flight_details['price']}\n"
             f"You save: ${savings:.2f}\n\n"
+            f"View flights: {results_link}\n\n"
             f"Unsubscribe: {unsubscribe_link}\n"
         )
 

@@ -3,6 +3,7 @@ import schedule
 from datetime import datetime, date
 from db import get_connection, update_last_checked, delete_alert, update_price_threshold
 from email_service import send_price_drop_notification, send_alert_expired_notification
+from sms_service import send_price_drop_sms, send_alert_expired_sms
 import sys
 import os
 
@@ -18,7 +19,7 @@ def get_verified_active_alerts():
             cursor.execute("""
                 SELECT * FROM price_alerts
                 WHERE is_active = TRUE
-                AND email_verified = TRUE
+                AND (email_verified = TRUE OR phone_verified = TRUE)
                 ORDER BY created_at ASC
             """)
             return cursor.fetchall()
@@ -49,7 +50,14 @@ def check_prices_for_alert(alert):
                 'trip_type': alert['trip_type']
             }
 
-            send_alert_expired_notification(alert['email'], alert_details)
+            # for email
+            if alert['email']:
+                send_alert_expired_notification(alert['email'], alert_details)
+
+            # for phone
+            if alert['phone']:
+                send_alert_expired_sms(alert['phone'], alert_details)
+
             delete_alert(alert['id'])
             return
         
@@ -89,16 +97,23 @@ def check_prices_for_alert(alert):
                     'airline': flight.get('airline', 'Unknown')
                 }
 
-                # send the notification
-                if send_price_drop_notification(alert['email'], alert_details, flight_details):
-                    print (f"Notification sent to {alert['email']}")
+                # Send email notification if email exists and is verified
+                if alert['email'] and alert['email_verified']:
+                    if send_price_drop_notification(alert['email'], alert_details, flight_details):
+                        print(f"Email notification sent to {alert['email']}")
+                    else:
+                        print(f"Failed to send email to {alert['email']}")
 
-                    # update the price threshold to the new lower price
-                    from db import update_price_threshold
-                    update_price_threshold(alert['id'], flight['price'])
-                    print(f"Price threshold updated to ${flight['price']}")
-                else:
-                    print(f"Failed to send notification to {alert['email']}")
+                # Send SMS if phone exists and is verified
+                if alert['phone'] and alert['phone_verified']:
+                    if send_price_drop_sms(alert['phone'], alert_details, flight_details):
+                        print(f"SMS notification sent to {alert['phone']}")
+                    else:
+                        print(f"Failed to send SMS to {alert['phone']}")
+
+                # update the price threshold to the new lower price
+                update_price_threshold(alert['id'], flight['price'])
+                print(f"Price threshold updated to ${flight['price']}")
 
                 # only send one notification per alert check
                 break

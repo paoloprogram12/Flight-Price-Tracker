@@ -219,7 +219,7 @@ body {
 button[type="submit"] {
     width: 100%;
     padding: 15px;
-    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    background: #3498db;
     color: white;
     border: none;
     border-radius: 8px;
@@ -387,7 +387,7 @@ body:has(.results-container) {
 
 .search-btn {
         padding: 0 20px;
-        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        background: #3498db;
         color: white;
         border: none;
         border-radius: 6px;
@@ -837,7 +837,7 @@ body:has(.results-container) {
 
 /* === HOME PAGE ABOUT SECTION === */
 .about-section {
-    background: linear-gradient(135deg, #1c315e 0%, #3b49df 50%, #7c3aed 100%);
+    background: linear-gradient(135deg, #1a3a5f 0%, #3498db 50%, #5dade2 100%);
     padding: 80px 20px 60px 20px;
     margin-top: 150px;
     margin-left: -20px;

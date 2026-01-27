@@ -3,7 +3,14 @@ import pymysql
 from dotenv import load_dotenv
 from datetime import datetime
 
+# Load environment variables from .env file
 load_dotenv()
+
+# ──────────────────────────────────────────────────────────────
+# Database Configuration
+# Reads MySQL credentials from environment variables so
+# sensitive info stays out of source control.
+# ──────────────────────────────────────────────────────────────
 
 # MYSQL configuration from .env
 DB_CONFIG = {
@@ -13,8 +20,14 @@ DB_CONFIG = {
     'password': os.getenv('MYSQL_PASSWORD'),
     'database': os.getenv('MYSQL_DATABASE'),
     'charset': 'utf8mb4',
-    'cursorclass': pymysql.cursors.DictCursor
+    'cursorclass': pymysql.cursors.DictCursor,  # return rows as dicts instead of tuples
 }
+
+
+# ──────────────────────────────────────────────────────────────
+# Connection Helper
+# ──────────────────────────────────────────────────────────────
+
 
 def get_connection():
     """Create and returns a db connection"""
@@ -25,33 +38,41 @@ def get_connection():
         print(f"Error connecting to MySQL: {e}")
         raise
 
+
+# ──────────────────────────────────────────────────────────────
+# Schema Initialization
+# ──────────────────────────────────────────────────────────────
+
+
 def init_db():
     """Initialize db and create tables if they don't exist"""
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
             # creates price_alerts table if DNE
+            # This is the main table that stores all user alert subscriptions,
+            # including contact info, flight criteria, and verification state.
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS price_alerts (
-                           id INT AUTO_INCREMENT PRIMARY KEY,
-                           email VARCHAR(255) NOT NULL,
-                           phone VARCHAR(20),
-                           origin VARCHAR(10) NOT NULL,
-                           destination VARCHAR(10) NOT NULL,
-                           departure_date DATE NOT NULL,
-                           return_date DATE,
-                           price_threshold DECIMAL(10,2) NOT NULL,
-                           trip_type VARCHAR(20) NOT NULL,
-                           is_active BOOLEAN DEFAULT TRUE,
-                           email_verified BOOLEAN DEFAULT FALSE,
-                           phone_verified BOOLEAN DEFAULT FALSE,
-                           verification_token VARCHAR(255),
-                           phone_verification_code VARCHAR(6),
-                           token_created_at TIMESTAMP NULL,
-                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                           last_checked TIMESTAMP NULL
-                            )
-                        """)
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    email VARCHAR(255) NOT NULL,
+                    phone VARCHAR(20),
+                    origin VARCHAR(10) NOT NULL,
+                    destination VARCHAR(10) NOT NULL,
+                    departure_date DATE NOT NULL,
+                    return_date DATE,
+                    price_threshold DECIMAL(10,2) NOT NULL,
+                    trip_type VARCHAR(20) NOT NULL,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    email_verified BOOLEAN DEFAULT FALSE,
+                    phone_verified BOOLEAN DEFAULT FALSE,
+                    verification_token VARCHAR(255),
+                    phone_verification_code VARCHAR(6),
+                    token_created_at TIMESTAMP NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_checked TIMESTAMP NULL
+                )
+            """)
             connection.commit()
             print("Database initialized successfully.")
     except pymysql.Error as e:
@@ -60,35 +81,55 @@ def init_db():
     finally:
         connection.close()
 
-def create_alert(phone, origin, destination, departure_date, return_date, price_threshold, trip_type, email=None, verification_token=None, phone_verification_code=None):
+
+# ──────────────────────────────────────────────────────────────
+# CRUD Operations
+# Functions for creating, reading, updating, and deleting
+# price alert records.
+# ──────────────────────────────────────────────────────────────
+
+
+def create_alert(phone, origin, destination, departure_date, return_date,
+                 price_threshold, trip_type, email=None,
+                 verification_token=None, phone_verification_code=None):
     """
-      Create a new price alert.
-      
-      Args:
-          phone: User's phone number (E.164 format, e.g., +15551234567)
-          origin: Origin airport code (e.g., "LAX")
-          destination: Destination airport code (e.g., "TYO")
-          departure_date: Departure date (YYYY-MM-DD)
-          return_date: Return date (YYYY-MM-DD) or None for one-way
-          price_threshold: Maximum price user wants to pay
-          trip_type: "one-way" or "round-trip"
-          email: Optional email address
-      
-      Returns:
-          The ID of the created alert
-      """
+    Create a new price alert.
+
+    Args:
+        phone: User's phone number (E.164 format, e.g., +15551234567)
+        origin: Origin airport code (e.g., "LAX")
+        destination: Destination airport code (e.g., "TYO")
+        departure_date: Departure date (YYYY-MM-DD)
+        return_date: Return date (YYYY-MM-DD) or None for one-way
+        price_threshold: Maximum price user wants to pay
+        trip_type: "one-way" or "round-trip"
+        email: Optional email address
+
+    Returns:
+        The ID of the created alert
+    """
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
             sql = """
                 INSERT INTO price_alerts
                 (phone, email, origin, destination, departure_date, return_date,
-                price_threshold, trip_type, is_active, verification_token, phone_verification_code, token_created_at)
+                price_threshold, trip_type, is_active, verification_token,
+                phone_verification_code, token_created_at)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(sql, (phone, email, origin, destination, departure_date, return_date,
-                                price_threshold, trip_type, True, verification_token, phone_verification_code, datetime.now() if verification_token else None))
+            # Record the token creation time only when a token is provided,
+            # so we can later check for token expiration.
+            cursor.execute(sql, (
+                phone, email, origin, destination,
+                departure_date, return_date,
+                price_threshold, trip_type, True,
+                verification_token, phone_verification_code,
+                datetime.now() if verification_token else None,
+            ))
             connection.commit()
+
+            # lastrowid gives us the auto-incremented ID of the new row
             return cursor.lastrowid
     except pymysql.Error as e:
         print(f"Error creating alert: {e}")
@@ -96,11 +137,14 @@ def create_alert(phone, origin, destination, departure_date, return_date, price_
     finally:
         connection.close()
 
+
 def get_active_alerts():
     """Get all active price alerts."""
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
+            # Only return alerts that are still active (not unsubscribed),
+            # ordered newest first so the checker processes recent alerts first.
             cursor.execute("""
                 SELECT * FROM price_alerts
                 WHERE is_active = TRUE
@@ -113,11 +157,32 @@ def get_active_alerts():
     finally:
         connection.close()
 
+
+def get_alert_by_id(alert_id):
+    """Get a specific alert by ID."""
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            # fetchone returns a single dict (or None if not found)
+            cursor.execute("""
+                SELECT * FROM price_alerts
+                WHERE id = %s
+            """, (alert_id,))
+            return cursor.fetchone()
+    except pymysql.Error as e:
+        print(f"Error fetching alert: {e}")
+        raise
+    finally:
+        connection.close()
+
+
 def update_last_checked(alert_id):
     """Update the last chekced timestamp for an alert."""
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
+            # Stamp the current time so the background checker knows
+            # when this alert was last processed.
             cursor.execute("""
                 UPDATE price_alerts
                 SET last_checked = %s
@@ -129,6 +194,7 @@ def update_last_checked(alert_id):
         raise
     finally:
         connection.close()
+
 
 def update_price_threshold(alert_id, new_threshold):
     """Update the price threshold for an alert."""
@@ -147,11 +213,14 @@ def update_price_threshold(alert_id, new_threshold):
     finally:
         connection.close()
 
+
 def delete_alert(alert_id):
     """Permanently delete an alert from the database."""
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
+            # Hard delete — the row is removed entirely rather than
+            # being soft-deactivated via is_active.
             cursor.execute("""
                 DELETE FROM price_alerts
                 WHERE id = %s
@@ -162,21 +231,13 @@ def delete_alert(alert_id):
         print(f"Error deleting alert: {e}")
         return False
 
-def get_alert_by_id(alert_id):
-      """Get a specific alert by ID."""
-      connection = get_connection()
-      try:
-          with connection.cursor() as cursor:
-              cursor.execute("""
-                  SELECT * FROM price_alerts 
-                  WHERE id = %s
-              """, (alert_id,))
-              return cursor.fetchone()
-      except pymysql.Error as e:
-          print(f"Error fetching alert: {e}")
-          raise
-      finally:
-          connection.close()
+
+# ──────────────────────────────────────────────────────────────
+# Verification Functions
+# Used during the email/phone verification flow to confirm
+# that the user owns the contact method they provided.
+# ──────────────────────────────────────────────────────────────
+
 
 # tokens are used to store a specific alert
 # email verified sets email_verified=TRUE for alert
@@ -184,7 +245,7 @@ def get_alert_by_id(alert_id):
 def verify_email_token(token):
     """
     Verify an email using the verification token.
-    
+
     Args:
         token: The verification token from the email link
 
@@ -194,6 +255,8 @@ def verify_email_token(token):
     try:
         with connection.cursor() as cursor:
             # Find alert with this token
+            # Only match if the email hasn't already been verified,
+            # preventing the same link from being used twice.
             cursor.execute("""
                 SELECT id FROM price_alerts
                 WHERE verification_token = %s
@@ -203,7 +266,7 @@ def verify_email_token(token):
             alert = cursor.fetchone()
             if not alert:
                 return False
-            
+
             # Mark email as verified
             cursor.execute("""
                 UPDATE price_alerts
@@ -219,20 +282,23 @@ def verify_email_token(token):
     finally:
         connection.close()
 
+
 def verify_phone_code(alert_id, code):
     """
     Verify a phone using the verification code.
-    
+
     Args:
         alert_id: The alert ID
         code: The 6-digit verification code
-        
+
     Returns: True if verification successful, False otherwise
     """
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
             # find alert with this ID and code
+            # Matches on both alert_id AND code so that a valid code
+            # can only verify the specific alert it was issued for.
             cursor.execute("""
                 SELECT id FROM price_alerts
                 WHERE id = %s
@@ -243,7 +309,7 @@ def verify_phone_code(alert_id, code):
             alert = cursor.fetchone()
             if not alert:
                 return False
-            
+
             # mark phone as verified
             cursor.execute("""
                 UPDATE price_alerts
@@ -259,16 +325,29 @@ def verify_phone_code(alert_id, code):
     finally:
         connection.close()
 
+
+# ──────────────────────────────────────────────────────────────
+# Module Entry Point
+# Running this file directly (python db.py) will create
+# the database tables if they don't already exist.
+# ──────────────────────────────────────────────────────────────
+
 # initialize db when module is imported
 if __name__ == "__main__":
     init_db()
     print("Database setup is completed.")
 
 
-# 1. get_connection() - Creates a connection to your MySQL database using credentials from .env
-#   2. init_db() - Creates the price_alerts table if it doesn't exist
-#   3. create_alert() - Saves a new price alert to the database
-#   4. get_active_alerts() - Retrieves all active alerts (for the background checker)
-#   5. update_last_checked() - Updates when an alert was last checked
-#   6. deactivate_alert() - Turns off an alert
-#   7. get_alert_by_id() - Gets a specific alert by ID
+# ──────────────────────────────────────────────────────────────
+# Function Reference
+#   1. get_connection()        - Creates a connection to MySQL using .env credentials
+#   2. init_db()               - Creates the price_alerts table if it doesn't exist
+#   3. create_alert()          - Saves a new price alert to the database
+#   4. get_active_alerts()     - Retrieves all active alerts (for the background checker)
+#   5. get_alert_by_id()       - Gets a specific alert by ID
+#   6. update_last_checked()   - Updates when an alert was last checked
+#   7. update_price_threshold()- Updates the price threshold for an alert
+#   8. delete_alert()          - Permanently removes an alert from the database
+#   9. verify_email_token()    - Verifies an email via token and marks it verified
+#  10. verify_phone_code()     - Verifies a phone via 6-digit code and marks it verified
+# ──────────────────────────────────────────────────────────────

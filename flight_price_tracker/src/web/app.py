@@ -1,39 +1,63 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from dotenv import load_dotenv
 import sys
 import os
 import json
 
+from flask import Flask, render_template, request, redirect, url_for, flash
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
 load_dotenv()
+
+# ──────────────────────────────────────────────────────────────
+# Static Data Loading
+# Load airport and airline lookup data once at startup so it
+# can be reused across requests without repeated file I/O.
+# ──────────────────────────────────────────────────────────────
 
 # load airport data at startup
 base_dir = os.path.dirname(os.path.abspath(__file__))
 airports_path = os.path.join(base_dir, 'static', 'airports.json')
 airlines_path = os.path.join(base_dir, 'static', 'airlines.json')
 
+# airports
 with open(airports_path) as f:
-    # airports
     airports_data = json.load(f)
-    airports = {a['code']: a for a in airports_data}
+    airports = {a['code']: a for a in airports_data}  # key by IATA code for O(1) lookup
 
+# airlines
 with open(airlines_path) as f:
     airlines_data = json.load(f)
-    airlines = {a['code']: a for a in airlines_data}
+    airlines = {a['code']: a for a in airlines_data}  # key by airline code for O(1) lookup
+
+# ──────────────────────────────────────────────────────────────
+# Module Imports
+# ──────────────────────────────────────────────────────────────
 
 # add parent directory to path to import from src.core
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))) # shows where to find db.py
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))  # shows where to find db.py
 
 from src.core.db import create_alert, get_active_alerts
 from src.core.email_service import generate_verification_token, send_verification_email
+
+# ──────────────────────────────────────────────────────────────
+# Flask App Initialization
+# ──────────────────────────────────────────────────────────────
 
 # creates app
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default-dev-key')
 
+
+# ──────────────────────────────────────────────────────────────
+# Routes
+# ──────────────────────────────────────────────────────────────
+
+
 # home page
 @app.route('/')
 def home():
     return render_template('index.html')
+
 
 # handle flight search
 @app.route('/search', methods=['GET', 'POST'])
@@ -42,6 +66,7 @@ def search():
         # import API function
         from src.api.travelpayouts import prices_for_dates
 
+        # --- Extract form parameters from GET or POST ---
         # get form data (email first)
         if request.method == 'GET':
             origin = request.args.get('origin').upper()
@@ -65,6 +90,8 @@ def search():
         # determine if it's one way
         one_way = (trip_type == 'one-way')
 
+        # --- Fetch flight data from the API ---
+
         # calls the Travelpayouts API
         flights = prices_for_dates(
             origin=origin,
@@ -78,13 +105,17 @@ def search():
             infants=infant
         )
 
+        # --- Enrich each flight with human-readable city/airline info ---
+
         # assign cities and airline info
         for flight in flights:
+            # Map airport codes to city and country names
             flight['origin_city'] = airports.get(flight['origin'], {}).get('city', flight['origin'])
             flight['destination_city'] = airports.get(flight['destination'], {}).get('city', flight['destination'])
             flight['origin_country'] = airports.get(flight['origin'], {}).get('country', flight['origin'])
             flight['destination_country'] = airports.get(flight['destination'], {}).get('country', flight['destination'])
 
+            # Map airline code to name and logo
             airline_info = airlines.get(flight['airline'], {})
             flight['airline_name'] = airline_info.get('name', flight['airline'])
             flight['airline_img'] = airline_info.get('img', None)
@@ -95,6 +126,7 @@ def search():
                 flight['return_airline_name'] = return_airline_info.get('name', flight['return_airline'])
                 flight['return_airline_img'] = return_airline_info.get('img', None)
 
+        # --- Build template context ---
 
         # calculate total passengers
         total_passengers = adults + children + infant
@@ -106,27 +138,36 @@ def search():
         destination_country = airports.get(destination, {}).get('country', '')
 
         # pass data to the template
-        return render_template('results.html',
-                               flights=flights,
-                               origin=origin,
-                               destination=destination,
-                               origin_city=origin_city,
-                               origin_country=origin_country,
-                               destination_city=destination_city,
-                               destination_country=destination_country,
-                               departure_date=departure_date,
-                               return_date=return_date,
-                               trip_type=trip_type,
-                               total_passengers=total_passengers)
+        return render_template(
+            'results.html',
+            flights=flights,
+            origin=origin,
+            destination=destination,
+            origin_city=origin_city,
+            origin_country=origin_country,
+            destination_city=destination_city,
+            destination_country=destination_country,
+            departure_date=departure_date,
+            return_date=return_date,
+            trip_type=trip_type,
+            total_passengers=total_passengers,
+        )
+
     except Exception as e:
         flash(f'Error searching flights: {str(e)}', 'error')
         return redirect(url_for('home'))
+
+
+# ──────────────────────────────────────────────────────────────
+# Alert Routes
+# ──────────────────────────────────────────────────────────────
 
 
 # display alerts signup form
 @app.route('/alerts')
 def alerts():
     return render_template('alerts.html')
+
 
 # handle alert form submission
 @app.route('/alerts/create', methods=['POST'])
@@ -136,6 +177,8 @@ def create_alert_route():
 
     try:
         print("DEBUG: Form submitted")
+
+        # --- Parse contact info ---
         phone = request.form.get('phone') or None  # Convert empty string to None
         email = request.form.get('email')
 
@@ -144,7 +187,7 @@ def create_alert_route():
             flash('Please provide either an email address or phone number.', 'error')
             return redirect(url_for('alerts'))
 
-
+        # --- Parse flight parameters ---
         print(f"DEBUG: Email = {email}, Phone = {phone}")
         origin = request.form.get('origin').upper()
         destination = request.form.get('destination').upper()
@@ -162,6 +205,8 @@ def create_alert_route():
             flash('Phone number must include country code (e.g., +15551234567)', 'error')
             return redirect(url_for('alerts'))
 
+        # --- Generate verification tokens ---
+
         # Generate verification token for email
         print("DEBUG: Generating token")
         verification_token = generate_verification_token()
@@ -172,6 +217,8 @@ def create_alert_route():
         if phone:
             phone_verification_code = generate_verification_code()
             print(f"DEBUG: Phone verification code = {phone_verification_code}")
+
+        # --- Persist the alert ---
 
         # Save to database
         print("DEBUG: Saving to database")
@@ -185,9 +232,11 @@ def create_alert_route():
             trip_type=trip_type,
             email=email,
             verification_token=verification_token,
-            phone_verification_code=phone_verification_code
+            phone_verification_code=phone_verification_code,
         )
         print(f"DEBUG: Alert created with ID = {alert_id}")
+
+        # --- Send verification notifications ---
 
         # send verification mail
         if email:
@@ -197,7 +246,7 @@ def create_alert_route():
                 'departure_date': departure_date,
                 'return_date': return_date,
                 'price_threshold': price_threshold,
-                'trip_type': trip_type
+                'trip_type': trip_type,
             }
 
             print("DEBUG: Sending verification email")
@@ -228,7 +277,13 @@ def create_alert_route():
         print(f"DEBUG: Exception caught: {e}")
         flash(f'Error creating alert: {str(e)}', 'error')
         return redirect(url_for('alerts'))
-    
+
+
+# ──────────────────────────────────────────────────────────────
+# Verification Routes
+# ──────────────────────────────────────────────────────────────
+
+
 # handles email verification
 @app.route('/verify-email')
 def verify_email():
@@ -242,9 +297,10 @@ def verify_email():
         return redirect(url_for('home'))
 
     # Import verify function
-    from src.core.db import verify_email_token, get_alert_by_id, get_connection # checks if token is valid
+    from src.core.db import verify_email_token, get_alert_by_id, get_connection  # checks if token is valid
     from src.core.email_service import send_alert_activated_notification
 
+    # Attempt to verify the token against the database
     print("DEBUG: Calling verify_email_token")
     result = verify_email_token(token)
     print(f"DEBUG: verify_email_token returned {result}")
@@ -253,6 +309,7 @@ def verify_email():
         print("DEBUG: Verification successful")
         print("DEBUG: About to fetch alert with token")
 
+        # Look up the alert ID associated with this token
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute("SELECT id FROM price_alerts WHERE verification_token = %s", (token,))
@@ -262,6 +319,7 @@ def verify_email():
 
         print(f"DEBUG: Found alert_id = {alert_id}")
 
+        # Fetch full alert details to include in the activation email
         alert = get_alert_by_id(alert_id)
 
         alert_details = {
@@ -276,6 +334,7 @@ def verify_email():
 
         user_email = alert['email']
 
+        # Send the "alert is now active" confirmation email
         print(f"DEBUG: Alert details = {alert_details}")
         print(f"DEBUG: Sending activation email to {user_email}")
 
@@ -288,12 +347,14 @@ def verify_email():
         print("DEBUG: Verification failed")
         flash('Invalid or expired verification link.', 'error')
 
+    # Redirect based on whether verification succeeded or failed
     print("DEBUG: Redirecting to alerts")
     if result:
         return render_template('email_verified.html')
     else:
         return redirect(url_for('alerts'))
-    
+
+
 # handle unsubscribe from alerts
 @app.route('/unsubscribe')
 def unsubscribe():
@@ -302,7 +363,7 @@ def unsubscribe():
     if not alert_id:
         flash('Invalid unsubscribe link.', 'error')
         return redirect(url_for('home'))
-    
+
     # import deactivate function
     from src.core.db import delete_alert, get_alert_by_id
     from src.core.email_service import send_deleted_alert_notification
@@ -328,17 +389,22 @@ def unsubscribe():
             from src.core.sms_service import send_alert_deleted_sms
             send_alert_deleted_sms(alert['phone'], alert_details)
 
+        # Delete the alert from the database after notifications are sent
         delete_alert(alert_id)
 
         return render_template('unsubscribe.html')
+
     except Exception as e:
         print(f"Error unsubscribing: {e}")
         flash('Error unsubscribing from alert.', 'error')
         return redirect(url_for('home'))
-    
+
+
 # handles phone verification
 @app.route('/verify-phone', methods=['GET', 'POST'])
 def verify_phone_submit():
+
+    # --- GET: display the verification code input form ---
     if request.method == 'GET':
         # displays verification form
         alert_id = request.args.get('alert_id')
@@ -347,10 +413,11 @@ def verify_phone_submit():
         if not alert_id or not phone:
             flash('Invalid verification link.', 'error')
             return redirect(url_for('home'))
-        
+
         return render_template('verify_phone.html', alert_id=alert_id, phone=phone)
-    
-    else : # POST method
+
+    # --- POST: validate the submitted verification code ---
+    else:  # POST method
         # validates the code
         alert_id = request.form.get('alert_id')
         code = request.form.get('code')
@@ -375,9 +442,10 @@ def verify_phone_submit():
                 'departure_date': str(alert['departure_date']),
                 'return_date': str(alert['return_date']) if alert['return_date'] else None,
                 'price_threshold': float(alert['price_threshold']),
-                'trip_type': alert['trip_type']
+                'trip_type': alert['trip_type'],
             }
 
+            # Send activation confirmation via SMS
             print(f"DEBUG: About to send activation SMS to {alert['phone']}")
             send_alert_activated_sms(alert['phone'], alert_details)
             print(f"DEBUG: After sending activation SMS")
@@ -391,16 +459,32 @@ def verify_phone_submit():
             alert = get_alert_by_id(alert_id)
             return render_template('verify_phone.html', alert_id=alert_id, phone=alert['phone'])
 
+
+# ──────────────────────────────────────────────────────────────
+# Test Routes (TEMPORARY)
+# ──────────────────────────────────────────────────────────────
+
+
 # TEMPORARY TESTING
 @app.route('/test-verified')
 def test_verified():
     return render_template('email_verified.html')
+
+
 @app.route('/test-unsubscribe')
 def test_unsubscribe():
     return render_template('unsubscribe.html')
+
+
 @app.route('/test-phone-verify')
 def test_phone_verify():
     return render_template('verify_phone.html', phone='+15551234567', alert_id=123)
+
+
+# ──────────────────────────────────────────────────────────────
+# App Entry Point
+# ──────────────────────────────────────────────────────────────
+
 
 # runs the app
 if __name__ == '__main__':

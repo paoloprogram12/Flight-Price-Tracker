@@ -65,7 +65,7 @@ A web application to track and compare flight prices, with automated email and S
 - ✅ All medium priority tasks completed!
 
 ### Low Priority
-- [ ] Code readability improvements and refactoring
+- ✅ All low priority tasks completed!
 
 ## Setup
 

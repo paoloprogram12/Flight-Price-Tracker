@@ -1,8 +1,17 @@
 import os
+import re
+
 from dotenv import load_dotenv
 from amadeus import Client, ResponseError
 
+# Load environment variables from .env file
 load_dotenv()
+
+# ──────────────────────────────────────────────────────────────
+# Amadeus API Configuration
+# Uses OAuth2 client credentials (API key + secret) to
+# authenticate with the Amadeus Flight Offers Search API.
+# ──────────────────────────────────────────────────────────────
 
 # Get credentials and validate
 API_KEY = os.getenv('AMADEUS_API_KEY')
@@ -12,23 +21,107 @@ print(f"DEBUG - Amadeus API Key loaded: {API_KEY[:10] if API_KEY else 'MISSING'}
 print(f"DEBUG - Amadeus API Secret loaded: {API_SECRET[:10] if API_SECRET else 'MISSING'}...")
 
 # Initialize Amadeus
+# The Client handles token refresh automatically — once created
+# it can be reused for every API call in this module.
 amadeus = Client(
     client_id=API_KEY,
-    client_secret=API_SECRET
+    client_secret=API_SECRET,
 )
+
+
+# ──────────────────────────────────────────────────────────────
+# Custom Exception
+# ──────────────────────────────────────────────────────────────
+
 
 class APIError(RuntimeError):
     """Custom error for API issues"""
     pass
 
+
+# ──────────────────────────────────────────────────────────────
+# Helper Functions
+# Small utilities used by the main search function to format
+# times and durations from the raw Amadeus response.
+# ──────────────────────────────────────────────────────────────
+
+
+# Converts a 24-hour time string ("14:30") to 12-hour format
+# ("2:30 PM"). Returns None if the input is empty/None.
+# Used to make departure and arrival times more readable in
+# the search results page.
+def format_time_12hr(time_24hr) -> str:
+    """Convert 24-hour time string (HH:MM) to 12-hour format (H:MM AM/PM)."""
+    if not time_24hr:
+        return None
+
+    hours, minutes = time_24hr.split(':')
+    hours = int(hours)
+    minutes = int(minutes)
+
+    if hours >= 12:
+        meridian = "PM"
+        if hours > 12:
+            hours = hours - 12
+    else:
+        meridian = "AM"
+        if hours == 0:
+            hours = 12
+
+    return f"{hours}:{minutes:02d} {meridian}"
+
+
+# Parses an ISO 8601 duration string into a human-readable
+# format. The Amadeus API returns durations like "PT2H30M"
+# and this converts them to "2h 30m".
+def parse_duration(duration_str: str) -> str:
+    """
+    Parse ISO 8601 duration to minutes.
+    Example: PT2H30M -> 2h 30 min
+    """
+    hours = 0
+    minutes = 0
+
+    # Extract hours
+    hour_match = re.search(r'(\d+)H', duration_str)
+    if hour_match:
+        hours = int(hour_match.group(1))
+
+    # Extract minutes
+    minute_match = re.search(r'(\d+)M', duration_str)
+    if minute_match:
+        minutes = int(minute_match.group(1))
+
+    if hours > 0 and minutes > 0:
+        return f"{hours}h {minutes}m"
+    elif hours > 0:
+        return f"{hours}h"
+    else:
+        return f"{minutes}m"
+
+
+# ──────────────────────────────────────────────────────────────
+# Main Search Function
+# This is the function that app.py and price_checker.py call
+# to search for flights. It hits the Amadeus Flight Offers
+# Search API, then normalises the response into a flat list
+# of dicts that our templates can easily render.
+# ──────────────────────────────────────────────────────────────
+
+
+# Fetches flight offers from the Amadeus API, parses each offer
+# into a flat dict with outbound + return details, builds a
+# Skyscanner deep-link for booking, and returns them sorted by
+# price (cheapest first).
 def prices_for_dates(origin: str, destination: str,
                      departure_at: str, return_at: str = None,
                      currency: str = "USD", limit: int = 30,
-                     one_way:bool = False, direct: bool = False, adults: int = 1, children: int = 0,
+                     one_way: bool = False, direct: bool = False,
+                     adults: int = 1, children: int = 0,
                      infants: int = 0):
     """
     Fetch cheapest flight prices for specific dates from Amadeus API.
-    
+
     Args:
         origin: IATA code of origin city/airport (e.g., "LAX")
         destination: IATA code of destination city/airport (e.g., "JFK")
@@ -43,10 +136,11 @@ def prices_for_dates(origin: str, destination: str,
         List of flight deals with price, dates, airline, etc.
 
     """
-
     try:
         print(f"DEBUG - Searching flights: {origin} -> {destination}")
         print(f"DEBUG - Departure: {departure_at}, Return: {return_at}, One-way: {one_way}")
+
+        # ── Build the API request parameters ──────────────────
 
         # Build search parameters
         search_params = {
@@ -55,7 +149,7 @@ def prices_for_dates(origin: str, destination: str,
             'departureDate': departure_at,
             'adults': adults,
             'currencyCode': currency,
-            'max': min(limit, 250)  # Amadeus max is 250
+            'max': min(limit, 250),  # Amadeus max is 250
         }
 
         # Add return date for round-trip
@@ -68,32 +162,43 @@ def prices_for_dates(origin: str, destination: str,
 
         print(f"DEBUG - API Parameters: {search_params}")
 
+        # ── Call the Amadeus API ──────────────────────────────
+
         # Make API call
         response = amadeus.shopping.flight_offers_search.get(**search_params)
 
         print(f"DEBUG - Response status: {response.status_code}")
         print(f"DEBUG - Number of offers: {len(response.data)}")
 
+        # ── Parse each offer into a flat result dict ──────────
+
         # Parse results
         results = []
         for offer in response.data:
+
+            # --- Outbound itinerary ---
+
             # Get first itinerary [outbound]
             itinerary = offer['itineraries'][0]
             segments = itinerary['segments']
 
             # Get return itinerary if exists
+            # A round-trip offer has two itineraries: [0] = outbound, [1] = return
             return_itinerary = offer['itineraries'][1] if len(offer['itineraries']) > 1 else None
 
             # Calculate local transfers (stops)
+            # Each segment is one non-stop leg, so stops = segments - 1
             transfers = len(segments) - 1
             return_transfers = len(return_itinerary['segments']) - 1 if return_itinerary else 0
 
             # Get flight details
+            # first_segment = takeoff info, last_segment = final landing info
             first_segment = segments[0]
             last_segment = segments[-1]
 
             # Calculate duration (in minutes)
-            duration_str = itinerary['duration'] # Format:PT2H30M
+            # Amadeus returns ISO 8601 format like "PT2H30M"
+            duration_str = itinerary['duration']  # Format:PT2H30M
             duration = parse_duration(duration_str)
 
             # calculate return flight duration if it exists
@@ -102,21 +207,29 @@ def prices_for_dates(origin: str, destination: str,
                 return_duration_str = return_itinerary['duration']
                 return_duration = parse_duration(return_duration_str)
 
+            # --- Departure / Arrival times ---
+
             # extract departure and arrival times
-            departure_datetime = first_segment['departure']['at'] # full datetime
-            arrival_datetime = last_segment['arrival']['at'] # full datetime
-            departure_time_24hr = departure_datetime[11:16] if len(departure_datetime) > 11 else None # HH:MM
-            arrival_time_24hr = arrival_datetime[11:16] if len(arrival_datetime) > 11 else None # HH:MM
+            departure_datetime = first_segment['departure']['at']  # full datetime
+            arrival_datetime = last_segment['arrival']['at']  # full datetime
+            # Slice out HH:MM from the ISO datetime string (e.g., "2026-02-15T14:30:00" → "14:30")
+            departure_time_24hr = departure_datetime[11:16] if len(departure_datetime) > 11 else None  # HH:MM
+            arrival_time_24hr = arrival_datetime[11:16] if len(arrival_datetime) > 11 else None  # HH:MM
 
             # converts to 12hr
             departure_time = format_time_12hr(departure_time_24hr)
             arrival_time = format_time_12hr(arrival_time_24hr)
 
+            # --- Layover stops ---
+
             # extract layover stops (intermediate airports)
+            # Each segment's arrival airport (except the last) is a layover
             layover_stops = []
             if transfers > 0:
-                for i in range(len(segments) - 1): # exclude last segment
+                for i in range(len(segments) - 1):  # exclude last segment
                     layover_stops.append(segments[i]['arrival']['iataCode'])
+
+            # --- Return flight details ---
 
             # get return flight details if exists
             return_departure_time = None
@@ -130,7 +243,6 @@ def prices_for_dates(origin: str, destination: str,
                 return_departure_time_24hr = return_departure_datetime[11:16] if len(return_departure_datetime) > 11 else None
                 return_arrival_time_24hr = return_arrival_datetime[11:16] if len(return_arrival_datetime) > 11 else None
 
-
                 # gets return airline if it exists
                 return_airline = return_segments[0]['carrierCode']
 
@@ -143,16 +255,41 @@ def prices_for_dates(origin: str, destination: str,
                     for i in range(len(return_segments) - 1):
                         return_layover_stops.append(return_segments[i]['arrival']['iataCode'])
 
+            # --- Skyscanner booking link ---
+
             # build skyscanner deep link
+            # Formats dates as YYYYMMDD (no dashes) for the Skyscanner URL
             if return_itinerary:
                 # round trip format: /origin/destination/departdate/returndate
                 return_date_str = return_itinerary['segments'][0]['departure']['at'][:10].replace('-', '')
                 departure_date_str = first_segment['departure']['at'][:10].replace('-', '')
-                link = f"https://www.skyscanner.com/transport/flights/{first_segment['departure']['iataCode']}/{last_segment['arrival']['iataCode']}/{departure_date_str}/{return_date_str}/?adults={adults}&adultsv2={adults}&cabinclass=economy&children={children}&childrenv2=&inboundaltsenabled=false&infants={infants}&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=1"
+                link = (
+                    f"https://www.skyscanner.com/transport/flights/"
+                    f"{first_segment['departure']['iataCode']}/"
+                    f"{last_segment['arrival']['iataCode']}/"
+                    f"{departure_date_str}/{return_date_str}/"
+                    f"?adults={adults}&adultsv2={adults}&cabinclass=economy"
+                    f"&children={children}&childrenv2="
+                    f"&inboundaltsenabled=false&infants={infants}"
+                    f"&outboundaltsenabled=false&preferdirects=false"
+                    f"&ref=home&rtn=1"
+                )
             else:
                 # for one way flights
                 departure_date_str = first_segment['departure']['at'][:10].replace('-', '')
-                link = f"https://www.skyscanner.com/transport/flights/{first_segment['departure']['iataCode']}/{last_segment['arrival']['iataCode']}/{departure_date_str}/?adults={adults}&adultsv2={adults}&cabinclass=economy&children={children}&childrenv2=&inboundaltsenabled=false&infants={infants}&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=0"
+                link = (
+                    f"https://www.skyscanner.com/transport/flights/"
+                    f"{first_segment['departure']['iataCode']}/"
+                    f"{last_segment['arrival']['iataCode']}/"
+                    f"{departure_date_str}/"
+                    f"?adults={adults}&adultsv2={adults}&cabinclass=economy"
+                    f"&children={children}&childrenv2="
+                    f"&inboundaltsenabled=false&infants={infants}"
+                    f"&outboundaltsenabled=false&preferdirects=false"
+                    f"&ref=home&rtn=0"
+                )
+
+            # --- Append the normalised result ---
 
             # Build result obj matching existing format
             results.append({
@@ -174,15 +311,19 @@ def prices_for_dates(origin: str, destination: str,
                 "duration": duration,
                 "return_duration": return_duration,
                 "flight_number": f"{first_segment['carrierCode']}{first_segment['number']}",
-                "link": link  # Generic booking link
+                "link": link,  # Generic booking link
             })
+
+        # ── Sort and return ───────────────────────────────────
 
         # sort by price
         results.sort(key=lambda x: x['price'])
 
         print(f"DEBUG - Returning {len(results)} flights")
-        return results[:limit] # return only requested limit
+        return results[:limit]  # return only requested limit
+
     except ResponseError as error:
+        # Amadeus-specific error — log everything we can for debugging
         print(f"DEBUG - Amadeus API error:")
         print(f"  Error Type: {type(error).__name__}")
         if hasattr(error, 'response') and error.response:
@@ -199,56 +340,18 @@ def prices_for_dates(origin: str, destination: str,
             error_msg = error.description() if callable(error.description) else error.description
 
         raise APIError(f"Amadeus API Error: {error_msg}")
+
     except Exception as e:
+        # Catch-all for network issues, JSON parsing errors, etc.
         print(f"DEBUG - Unexpected Error: {str(e)}")
         raise APIError(f"Flight search failed: {str(e)}")
-    
-def format_time_12hr(time_24hr) -> str:
 
-    if not time_24hr:
-        return None
-    
-    hours, minutes = time_24hr.split(':')
-    hours = int(hours)
-    minutes = int(minutes)
 
-    if hours >= 12:
-        meridian = "PM"
-        if hours > 12:
-            hours = hours - 12
-    else:
-        meridian = "AM"
-        if hours == 0:
-            hours = 12
-
-    return f"{hours}:{minutes:02d} {meridian}"
-
-def parse_duration(duration_str: str) -> str:
-    """
-    Parse ISO 8601 duration to minutes.
-    Example: PT2H30M -> 2h 30 min
-    """
-    import re
-
-    hours = 0
-    minutes = 0
-
-    # Extract hours
-    hour_match = re.search(r'(\d+)H', duration_str)
-    if hour_match:
-        hours = int(hour_match.group(1))
-
-    # Extract minutes
-    minute_match = re.search(r'(\d+)M', duration_str)
-    if minute_match:
-        minutes = int(minute_match.group(1))
-
-    if hours > 0 and minutes > 0:
-        return f"{hours}h {minutes}m"
-    elif hours > 0:
-        return f"{hours}h"
-    else:
-        return f"{minutes}m"
+# ──────────────────────────────────────────────────────────────
+# Test Entry Point
+# Run this file directly (python travelpayouts.py) to verify
+# the API credentials work and see sample results.
+# ──────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     # Tests API
@@ -257,3 +360,11 @@ if __name__ == "__main__":
     print(f"Found {len(results)} flights")
     if results:
         print(f"Cheapest: ${results[0]['price']}")
+
+
+# ──────────────────────────────────────────────────────────────
+# Function Reference
+#   1. format_time_12hr()   - Converts "14:30" → "2:30 PM"
+#   2. parse_duration()     - Converts "PT2H30M" → "2h 30m"
+#   3. prices_for_dates()   - Main search: calls Amadeus API, parses offers, returns sorted list
+# ──────────────────────────────────────────────────────────────

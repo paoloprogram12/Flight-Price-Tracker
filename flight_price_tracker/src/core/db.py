@@ -29,6 +29,9 @@ DB_CONFIG = {
 # ──────────────────────────────────────────────────────────────
 
 
+# Opens a new MySQL connection using the DB_CONFIG credentials.
+# Every function in this file calls this to get a fresh connection,
+# then closes it when done.
 def get_connection():
     """Create and returns a db connection"""
     try:
@@ -44,6 +47,9 @@ def get_connection():
 # ──────────────────────────────────────────────────────────────
 
 
+# Creates the price_alerts table in MySQL if it doesn't already exist.
+# Should be called once when first setting up the project or when
+# the database is empty. Safe to call multiple times (uses IF NOT EXISTS).
 def init_db():
     """Initialize db and create tables if they don't exist"""
     connection = get_connection()
@@ -89,6 +95,10 @@ def init_db():
 # ──────────────────────────────────────────────────────────────
 
 
+# Inserts a new price alert row into the database.
+# Called from the /alerts/create route in app.py when a user submits the alert form.
+# Returns the new row's auto-incremented ID so we can reference it later
+# (e.g., for verification or unsubscribe links).
 def create_alert(phone, origin, destination, departure_date, return_date,
                  price_threshold, trip_type, email=None,
                  verification_token=None, phone_verification_code=None):
@@ -138,6 +148,9 @@ def create_alert(phone, origin, destination, departure_date, return_date,
         connection.close()
 
 
+# Fetches every alert where is_active = TRUE from the database.
+# Used by the background price checker to know which routes
+# to monitor for price drops.
 def get_active_alerts():
     """Get all active price alerts."""
     connection = get_connection()
@@ -158,6 +171,9 @@ def get_active_alerts():
         connection.close()
 
 
+# Looks up a single alert by its primary key.
+# Used throughout app.py to fetch full alert details when
+# verifying, unsubscribing, or sending notifications.
 def get_alert_by_id(alert_id):
     """Get a specific alert by ID."""
     connection = get_connection()
@@ -176,6 +192,9 @@ def get_alert_by_id(alert_id):
         connection.close()
 
 
+# Sets the last_checked column to the current time for a given alert.
+# Called by the background price checker after it finishes processing
+# an alert, so we can track how recently each alert was checked.
 def update_last_checked(alert_id):
     """Update the last chekced timestamp for an alert."""
     connection = get_connection()
@@ -196,6 +215,9 @@ def update_last_checked(alert_id):
         connection.close()
 
 
+# Changes the price_threshold value for an existing alert.
+# Could be used if a user wants to adjust the maximum price
+# they're willing to pay without creating a brand new alert.
 def update_price_threshold(alert_id, new_threshold):
     """Update the price threshold for an alert."""
     connection = get_connection()
@@ -214,6 +236,10 @@ def update_price_threshold(alert_id, new_threshold):
         connection.close()
 
 
+# Permanently removes an alert row from the database.
+# Called from the /unsubscribe route in app.py when a user
+# clicks the unsubscribe link in their email or SMS.
+# Returns True on success, False if the delete fails.
 def delete_alert(alert_id):
     """Permanently delete an alert from the database."""
     connection = get_connection()
@@ -239,6 +265,9 @@ def delete_alert(alert_id):
 # ──────────────────────────────────────────────────────────────
 
 
+# Looks up an alert by its unique verification token and marks
+# email_verified = TRUE if found. Called from the /verify-email
+# route in app.py when a user clicks the link in their verification email.
 # tokens are used to store a specific alert
 # email verified sets email_verified=TRUE for alert
 # tokens are used for security and uniqueness
@@ -283,6 +312,9 @@ def verify_email_token(token):
         connection.close()
 
 
+# Checks the 6-digit code the user entered against the one stored
+# in the database for that alert. If it matches, marks phone_verified = TRUE.
+# Called from the /verify-phone POST route in app.py.
 def verify_phone_code(alert_id, code):
     """
     Verify a phone using the verification code.
